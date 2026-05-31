@@ -9,7 +9,10 @@ import {
   Legend,
 } from "chart.js";
 
-import { Bar, Pie } from "react-chartjs-2";
+import {
+  Bar,
+  Pie,
+} from "react-chartjs-2";
 
 import {
   Eye,
@@ -27,124 +30,111 @@ ChartJS.register(
   Legend
 );
 
-const ProductAnalytics = () => {
+function ProductAnalytics({ data }) {
   const stats = [
     {
-      title: "Total Views",
-      value: "2,064",
-      icon: <Eye size={28} />,
+      title: "Revenue",
+      value: `$${Number(
+        data?.revenue || 0
+      ).toFixed(2)}`,
+      icon: <DollarSign size={28} />,
       bg: "from-blue-500 to-blue-600",
     },
     {
-      title: "Avg Conversion",
-      value: "10.8%",
+      title: "Orders",
+      value: data?.totalorder || 0,
       icon: <ShoppingCart size={28} />,
       bg: "from-emerald-500 to-green-600",
     },
     {
-      title: "Avg Rating",
-      value: "4.5",
+      title: "Rating",
+      value: Number(
+        data?.seller?.[0]?.rating || 0
+      ).toFixed(1),
       icon: <Star size={28} />,
       bg: "from-purple-500 to-fuchsia-600",
     },
     {
-      title: "Best Seller",
-      value: "Leather Crossbody",
-      icon: <DollarSign size={28} />,
+      title: "Products",
+      value:
+        data?.products?.length || 0,
+      icon: <Eye size={28} />,
       bg: "from-orange-500 to-orange-600",
     },
   ];
 
   const productPerformanceData = {
-    labels: [
-      "Smart Watch",
-      "Wireless Headphones",
-      "Running Shoes",
-      "Coffee Table",
-      "Yoga Mat",
-      "Leather Crossbody",
-    ],
-
+    labels:
+      data?.topProducts?.map(
+        (item) => item.name
+      ) || [],
     datasets: [
       {
-        label: "Sales",
-        data: [100, 115, 120, 122, 30, 80],
-        backgroundColor: "#8b5cf6",
+        label: "Stock",
+        data:
+          data?.topProducts?.map(
+            (item) =>
+              Number(
+                item.stock || 0
+              )
+          ) || [],
+        backgroundColor:
+          "#8b5cf6",
         borderRadius: 8,
       },
     ],
   };
 
   const revenueCategoryData = {
-    labels: ["Sports", "Fashion", "Home & Garden", "Electronics"],
-
+    labels:
+      data?.topProducts?.map(
+        (item) => item.name
+      ) || [],
     datasets: [
       {
-        data: [34, 18, 42, 5],
-
+        data:
+          data?.topProducts?.map(
+            (item) =>
+              Number(
+                item.price || 0
+              )
+          ) || [],
         backgroundColor: [
           "#6366f1",
           "#f59e0b",
           "#ec4899",
           "#8b5cf6",
+          "#14b8a6",
+          "#ef4444",
         ],
       },
     ],
   };
 
   const ratingData = {
-    labels: ["5★", "4★", "3★", "2★", "1★"],
-
+    labels:
+      data?.topProducts?.map(
+        (item) => item.name
+      ) || [],
     datasets: [
       {
-        label: "Ratings",
-        data: [45, 32, 15, 5, 3],
-        backgroundColor: "#f59e0b",
+        label: "Rating",
+        data:
+          data?.topProducts?.map(
+            (item) =>
+              Number(
+                item.rating || 0
+              )
+          ) || [],
+        backgroundColor:
+          "#f59e0b",
         borderRadius: 6,
       },
     ],
   };
 
-  const topProducts = [
-    {
-      rank: "#1",
-      name: "Leather Crossbody Bag",
-      views: "470",
-      conversion: "14%",
-      price: "$89.99",
-      rating: "4.3",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200",
-    },
-
-    {
-      rank: "#2",
-      name: "Modern Coffee Table",
-      views: "461",
-      conversion: "11%",
-      price: "$299.99",
-      rating: "4.6",
-      image:
-        "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=200",
-    },
-
-    {
-      rank: "#3",
-      name: "Running Shoes Ultra",
-      views: "381",
-      conversion: "17%",
-      price: "$129.99",
-      rating: "4.8",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200",
-    },
-
- 
-  ];
-
   const chartOptions = {
     responsive: true,
-
     plugins: {
       legend: {
         display: false,
@@ -155,49 +145,56 @@ const ProductAnalytics = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-6">
       <div className="w-[90%] mx-auto flex flex-col gap-5">
+
         <div>
           <h2 className="text-xl font-medium mb-2">
             Product Analytics
           </h2>
 
           <p className="text-gray-500">
-            Detailed insights into your product performance
+            Detailed insights into
+            your product performance
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {stats.map((item, index) => (
-            <div
-              key={index}
-              className={`bg-gradient-to-r ${item.bg} rounded-3xl p-6 text-white shadow-lg`}
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
-                {item.icon}
+          {stats.map(
+            (item, index) => (
+              <div
+                key={index}
+                className={`bg-gradient-to-r ${item.bg} rounded-3xl p-6 text-white shadow-lg`}
+              >
+                <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
+                  {item.icon}
+                </div>
+
+                <p className="text-md opacity-90">
+                  {item.title}
+                </p>
+
+                <h2 className="text-2xl mt-2 font-bold">
+                  {item.value}
+                </h2>
               </div>
-
-              <p className="text-md opacity-90">
-                {item.title}
-              </p>
-
-              <h2 className="text-2xl mt-2">
-                {item.value}
-              </h2>
-            </div>
-          ))}
+            )
+          )}
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
-              Product Performance
+              Product Stock
             </h2>
 
             <div className="h-[350px]">
               <Bar
-                data={productPerformanceData}
+                data={
+                  productPerformanceData
+                }
                 options={{
                   ...chartOptions,
-                  maintainAspectRatio: false,
+                  maintainAspectRatio:
+                    false,
                 }}
               />
             </div>
@@ -205,18 +202,21 @@ const ProductAnalytics = () => {
 
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
-              Revenue by Category
+              Product Price
+              Distribution
             </h2>
 
             <div className="h-[350px] flex items-center justify-center">
               <Pie
-                data={revenueCategoryData}
+                data={
+                  revenueCategoryData
+                }
                 options={{
                   responsive: true,
-
                   plugins: {
                     legend: {
-                      position: "right",
+                      position:
+                        "right",
                     },
                   },
                 }}
@@ -228,7 +228,7 @@ const ProductAnalytics = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
-              Rating Distribution
+              Product Ratings
             </h2>
 
             <div className="h-[320px]">
@@ -236,7 +236,8 @@ const ProductAnalytics = () => {
                 data={ratingData}
                 options={{
                   ...chartOptions,
-                  maintainAspectRatio: false,
+                  maintainAspectRatio:
+                    false,
                 }}
               />
             </div>
@@ -244,55 +245,94 @@ const ProductAnalytics = () => {
 
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
-              Top Performing Products
+              Top Rated Products
             </h2>
 
             <div className="space-y-5">
-              {topProducts.map((product, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-100 rounded-2xl p-4 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white font-bold flex items-center justify-center">
-                      {product.rank}
+              {data?.topProducts
+                ?.length > 0 ? (
+                data.topProducts.map(
+                  (
+                    product,
+                    index
+                  ) => (
+                    <div
+                      key={
+                        product.id
+                      }
+                      className="bg-gray-100 rounded-2xl p-4 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white font-bold flex items-center justify-center">
+                          #
+                          {index +
+                            1}
+                        </div>
+
+                        <img
+                          src={
+                            product.thumbnail ||
+                            "https://via.placeholder.com/100"
+                          }
+                          alt={
+                            product.name
+                          }
+                          className="w-14 h-14 rounded-xl object-cover"
+                        />
+
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {
+                              product.name
+                            }
+                          </h3>
+
+                          <p className="text-gray-500 text-sm">
+                            Stock:{" "}
+                            {
+                              product.stock
+                            }
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <h3 className="font-semibold text-lg">
+                          $
+                          {Number(
+                            product.price ||
+                              0
+                          ).toFixed(
+                            2
+                          )}
+                        </h3>
+
+                        <p className="text-yellow-500 text-sm">
+                          ★
+                          {Number(
+                            product.rating ||
+                              0
+                          ).toFixed(
+                            1
+                          )}
+                        </p>
+                      </div>
                     </div>
-
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-14 h-14 rounded-xl object-cover"
-                    />
-
-                    <div>
-                      <h3 className="font-semibold text-lg">
-                        {product.name}
-                      </h3>
-
-                      <p className="text-gray-500 text-sm">
-                        {product.views} views •{" "}
-                        {product.conversion} conversion
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <h3 className="font-semibold text-lg">
-                      {product.price}
-                    </h3>
-
-                    <p className="text-yellow-500 text-sm">
-                      ★ {product.rating}
-                    </p>
-                  </div>
+                  )
+                )
+              ) : (
+                <div className="text-center text-gray-500 py-10">
+                  No products found
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
-};
+}
 
 export default ProductAnalytics;
+

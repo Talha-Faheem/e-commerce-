@@ -1,119 +1,216 @@
-import React from "react";
-// import header from "./header2";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 import { IoReorderThreeOutline } from "react-icons/io5";
 import { IoIosNotifications } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
 import { MdInventory, MdOutlineLogout } from "react-icons/md";
+import { BsBoxSeamFill } from "react-icons/bs";
+import { FaChartLine } from "react-icons/fa";
+import { AiOutlineDashboard } from "react-icons/ai";
+
 import Sellerdashboard from "./sellerdashboard";
 import Inventory from "./inventory";
-import { IoSearch } from "react-icons/io5";
 import ProductAnalytics from "./product";
-import { BsBoxSeamFill } from "react-icons/bs";
-import OrderDetails from "./oderdetial";
-function seller() {
+import Orderhistory from "./orderhistory";
+
+function Seller() {
+  const [sellerdata, setSellerdata] =
+    useState({});
+
+  const [sidebarOpen, setSidebarOpen] =
+    useState(true);
+
+  const [activePage, setActivePage] =
+    useState("inventory");
+
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
+  const sellerId =
+    user?.seller_id;
+
+  const sellerdetial = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/sellerdetail/${sellerId}`
+      );
+
+      const data = await res.json();
+
+      setSellerdata(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (sellerId) {
+      sellerdetial();
+    }
+  }, [sellerId]);
+
   return (
-    <>
-      <header className="flex w-[100%]  justify-center mx-auto md:py-5 py-3 items-center shadow-md sticky top-0 bg-white">
-        <div className="w-[90%]  flex justify-between items-center">
-          <div className="flex gap-5 text-2xl items-center">
-            <IoReorderThreeOutline />
-            <h2>Dashboard</h2>
-          </div>
+    <div className="flex min-h-screen bg-gray-100">
+      <aside
+        className={`bg-white shadow-lg transition-all duration-300 ${
+          sidebarOpen
+            ? "w-72"
+            : "w-0 overflow-hidden"
+        }`}
+      >
+        <div className="p-6">
+          <h2 className="text-2xl font-bold">
+            Seller Panel
+          </h2>
+        </div>
 
-          <div className="flex gap-5 text-2xl items-center">
-            <IoIosNotifications />
-            <div className="flex items-center justify-around bg-gray-200 rounded-lg p-2 text-sm font-normal max-w-25 overflow-hidden gap-2">
-              <CgProfile size={20} className="text-gray-600" />
-              <p className="hidden md:flex">username</p>
+        <div className="flex flex-col gap-2 px-4">
+          <button
+            onClick={() =>
+              setActivePage("dashboard")
+            }
+            className={`flex items-center gap-3 p-4 rounded-xl ${
+              activePage === "dashboard"
+                ? "bg-purple-600 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <AiOutlineDashboard />
+            Dashboard
+          </button>
+
+          <button
+            onClick={() =>
+              setActivePage("inventory")
+            }
+            className={`flex items-center gap-3 p-4 rounded-xl ${
+              activePage === "inventory"
+                ? "bg-purple-600 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <MdInventory />
+            Inventory
+          </button>
+
+          <button
+            onClick={() =>
+              setActivePage("orders")
+            }
+            className={`flex items-center gap-3 p-4 rounded-xl ${
+              activePage === "orders"
+                ? "bg-purple-600 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <BsBoxSeamFill />
+            Orders
+          </button>
+
+          <button
+            onClick={() =>
+              setActivePage("analytics")
+            }
+            className={`flex items-center gap-3 p-4 rounded-xl ${
+              activePage === "analytics"
+                ? "bg-purple-600 text-white"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <FaChartLine />
+            Analytics
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1">
+        <header className="flex justify-center py-4 bg-white shadow-md sticky top-0 z-50">
+          <div className="w-[95%] flex justify-between items-center">
+            <div className="flex gap-4 items-center">
+              <button
+                onClick={() =>
+                  setSidebarOpen(
+                    !sidebarOpen
+                  )
+                }
+              >
+                <IoReorderThreeOutline
+                  size={35}
+                />
+              </button>
+
+              <h2 className="text-xl font-semibold capitalize">
+                {activePage}
+              </h2>
             </div>
-            <div className="hover:bg-red-100 rounded-lg px-3 py-2 group">
-              <MdOutlineLogout className="group-hover:text-red-500" size={22} />
-            </div>
-          </div>
-        </div>
-      </header>
 
-      {/* <div className="w-[90%] mx-auto mt-4 flex flex-col gap-5 ">
-        <div className="w-full ">
-          <h2 className="text-xl font font-medium mb-2">Order Management</h2>
-          <p className="text-gray-500 ">
-            Track and manage your customer orders
-          </p>
-        </div>
+            <div className="flex gap-5 items-center">
+              <IoIosNotifications
+                size={24}
+              />
 
-        <div className="flex justify-between">
-          <div className="flex flex-col bg-blue-500 rounded-lg p-5 min-w-[200px] w-[23%] text-white gap-5">
-                <div>
-                  <BsBoxSeamFill className="p-2 bg-white/15 rounded-md text-white text-4xl"/>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="font-medium ">All</p>
-                  <h4 className="text-2xl">3</h4>
-                </div>
-          </div>
-          <div className="flex flex-col bg-blue-500 rounded-lg p-5 min-w-[200px] w-[23%] text-white gap-5">
-                <div>
-                  <BsBoxSeamFill className="p-2 bg-white/15 rounded-md text-white text-4xl"/>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="font-medium ">All</p>
-                  <h4 className="text-2xl">3</h4>
-                </div>
-          </div>
-          <div className="flex flex-col bg-blue-500 rounded-lg p-5 min-w-[200px] w-[23%] text-white gap-5">
-                <div>
-                  <BsBoxSeamFill className="p-2 bg-white/15 rounded-md text-white text-4xl"/>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="font-medium ">All</p>
-                  <h4 className="text-2xl">3</h4>
-                </div>
-          </div>
-          <div className="flex flex-col bg-blue-500 rounded-lg p-5 min-w-[200px] w-[23%] text-white gap-5">
-                <div>
-                  <BsBoxSeamFill className="p-2 bg-white/15 rounded-md text-white text-4xl"/>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="font-medium ">All</p>
-                  <h4 className="text-2xl">3</h4>
-                </div>
-          </div>
-        </div>
+              <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
+                <CgProfile size={22} />
 
-
-        <div className="w-full rounded-lg bg-white shadow-md min-h-[100px] p-4 flex flex-col gap-5  mb-6">
-                <div className="flex justify-between  items-center">
-                  <div className="w-[80%]">
-                    <div className=" flex  items-center rounded-lg p-2 gap-3 bg-gray-200 w-full  ">
-                    <IoSearch className="text-gray-500" />
-                    <input
-                      className="outline-none bg-gray-200 text-md font-normal md:w-[95%] "
-                      type="text"
-                      placeholder="Search here ...."
-                    />
-                  </div>
-                  </div>
-        
-                  
-                  <div className="w-[15%] rounded-md text-md p-2 border flex flex-col items-center">
-                    <h3 className="text-sm">Total Revenue</h3>
-                    <p>$729.96</p>
-                  </div>
-                </div>
-        
-                <div className="flex flex-col w-full">
-                  <OrderDetails/>
-                </div>
+                <span>
+                  {user?.name}
+                </span>
               </div>
-      </div> */}
 
-        <ProductAnalytics/>
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href =
+                    "/";
+                }}
+              >
+                <MdOutlineLogout
+                  size={24}
+                />
+              </button>
+            </div>
+          </div>
+        </header>
 
-      {/* <Inventory/> */}
+        <main>
+          {activePage ===
+            "dashboard" && (
+            <Sellerdashboard
+              data={sellerdata}
+            />
+          )}
 
-      {/* <Sellerdashboard/> */}
-    </>
+          {activePage ===
+            "inventory" && (
+            <Inventory
+              data={sellerdata}
+              refreshProducts={
+                sellerdetial
+              }
+            />
+          )}
+
+          {activePage ===
+            "orders" && (
+            <Orderhistory
+              data={sellerdata}
+            />
+          )}
+
+          {activePage ===
+            "analytics" && (
+            <ProductAnalytics
+              data={sellerdata}
+            />
+          )}
+        </main>
+      </div>
+    </div>
   );
 }
 
-export default seller;
+export default Seller;
+

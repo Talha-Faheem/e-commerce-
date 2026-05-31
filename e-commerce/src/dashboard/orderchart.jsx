@@ -4,50 +4,62 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { faker } from '@faker-js/faker';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Legend
 );
 
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' ,
-    },
-    title: {
-     
-    },
-  },
-};
+function OrderChart({ sellerId }) {
+  const [orderdata, setorderdata] = useState([]);
 
-const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const orderdetial = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/orderperweek/${sellerId}`
+      );
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Order',
-      data: [12, 45, 32, 78, 56, 90, 67],
-      borderColor: 'rgb(53, 162, 235)',
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      tension: 0.4,
-    },
-  ],
-};
+      const result = await res.json();
 
-export default function App() {
-  return <Line  options={options} data={data} />;
+      setorderdata(result.orderdata);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (sellerId) {
+      orderdetial();
+    }
+  }, [sellerId]);
+
+  const chartData = {
+    labels: orderdata?.map((item) => item.day),
+    datasets: [
+      {
+        label: "Revenue",
+        data: orderdata?.map((item) => item.total_amount),
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+        tension: 0.4,
+      },
+    ],
+  };
+
+  return (
+    <div className="w-full h-full">
+      <Line data={chartData} />
+    </div>
+  );
 }
+
+export default OrderChart;

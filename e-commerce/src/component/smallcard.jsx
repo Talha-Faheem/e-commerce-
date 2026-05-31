@@ -1,29 +1,57 @@
-import React from 'react'
+
+import React from "react";
 import { CiStar } from "react-icons/ci";
-import Headphone from "../assests/headphone.jpg";
-import { FiShoppingCart } from "react-icons/fi";
-function smallcard() {
+
+function SmallCard({ product }) {
+  const getImageUrl = () => {
+    if (!product.thumbnail) {
+      return "https://via.placeholder.com/220x180";
+    }
+    if (product.thumbnail.startsWith('http')) {
+      return product.thumbnail;
+    }
+    return `data:image/jpeg;base64,${product.thumbnail}`;
+  };
+
   return (
-    <div className="mb-20 rounded-2xl min-w-[210px] flex flex-col gap-2 justify-center border overflow-hidden group hover:shadow-md">
-                <div className="w-full  overflow-hidden  " >
-                  <img className="w-full h-auto object-cover object-center group-hover:scale-110 ease-in-out transition-transform duration-700 " src={Headphone} alt="" />
-                </div>
-                
-                  <div className="px-3">
-                    <h2 className="text-md font-semibold">Wireless Headphones Pro</h2>
-                  <div className="flex flex-col gap-3 ">
-                    <div className="flex gap-2  items-center">
-                    <CiStar />
-                   
-                    <p>(4.5)</p>
-                  </div>
-                 
-                    <h2 className="text-xl mb-3">$199.99</h2>
-                  </div>
-                  </div>
-                 
-                </div>
-  )
+    <div className="mb-10 rounded-2xl min-w-[220px] border overflow-hidden group hover:shadow-lg bg-white">
+      <div className="w-full h-[180px] overflow-hidden">
+        <img
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          src={getImageUrl()}
+          alt={product.name}
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/220x180";
+          }}
+        />
+      </div>
+
+      <div className="p-3">
+        <h2 className="text-md font-semibold line-clamp-2">
+          {product.name}
+        </h2>
+
+        <div className="flex items-center gap-2 mt-2">
+          <CiStar />
+
+          <span>
+            {Number(
+              product.rating || 0
+            ).toFixed(1)}
+          </span>
+        </div>
+
+        <h2 className="text-xl mt-3 font-semibold">
+          ${product.price}
+        </h2>
+
+        <p className="text-sm text-gray-500 mt-1">
+          Sold: {product.sales || 0}
+        </p>
+      </div>
+    </div>
+  );
 }
 
-export default smallcard
+export default SmallCard;
+

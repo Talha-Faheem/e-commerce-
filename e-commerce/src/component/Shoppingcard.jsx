@@ -1,37 +1,117 @@
-import React from 'react'
-import Headphone from "../assests/headphone.jpg";
-import { FiShoppingCart } from "react-icons/fi";
 
+import React from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { FiShoppingCart } from "react-icons/fi";
 import { CiStar } from "react-icons/ci";
-function card() {
+
+function ShoppingCard({ product }) {
+  if (!product) return null;
+
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
+  const customerId =
+    user?.customer_id;
+
+  const addToCart = async (e) => {
+    e.preventDefault();
+
+    if (!customerId) {
+      alert("Please login first");
+      return;
+    }
+
+    try {
+      await axios.post(
+        "http://localhost:3000/cart/add",
+        {
+          customer_id: customerId,
+          product_id: product.id,
+          quantity: 1,
+        }
+      );
+
+      alert("Added To Cart");
+    } catch (error) {
+      console.log(error);
+      alert("Failed To Add Cart");
+    }
+  };
+
+  const getImageUrl = () => {
+    if (!product.thumbnail) {
+      return "https://via.placeholder.com/320x270";
+    }
+    if (product.thumbnail.startsWith('http')) {
+      return product.thumbnail;
+    }
+    return `data:image/jpeg;base64,${product.thumbnail}`;
+  };
+
   return (
-    <div className="mb-6 rounded-2xl lg:max-w-[320px]  md:w-[43%] w-[90%]   h-70vh flex flex-col md:gap-3 gap-1 justify-center border overflow-hidden group duration-600 hover:shadow-2xl">
-        <div className="w-full md:h-[270px]  overflow-hidden  " >
-          <img className="w-full h-auto object-cover object-center group-hover:scale-110 ease-in-out transition-transform duration-700" src={Headphone} alt="" />
+    <div className="mb-6 rounded-2xl lg:max-w-[320px] md:w-[43%] w-[90%] border overflow-hidden group hover:shadow-2xl duration-500">
+      <Link
+        to={`/customer/product/${product.id}`}
+      >
+        <div className="w-full h-[270px] overflow-hidden">
+          <img
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            src={getImageUrl()}
+            alt={product.name}
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/320x270";
+            }}
+          />
         </div>
-        
-          <div className="px-3">
-            <h2 className="md:text-[20px] text-[15px] font-semibold md:mb-5 mb-2">Wireless Headphones Pro</h2>
-          <div className="flex flex-col md:gap-4  gap-2">
-            <div className="flex items-center text-sm md:text-md">
+
+        <div className="px-4 py-3">
+          <h2 className="text-lg font-semibold">
+            {product.name}
+          </h2>
+
+          <div className="flex items-center gap-2 mt-2">
             <CiStar />
-            <CiStar/>
-            <CiStar/>
-            <CiStar/>
-            <CiStar/>
-            <p>(4.5)</p>
+
+            <span>
+              {Number(
+                product.rating || 0
+              ).toFixed(1)}
+            </span>
           </div>
-          <div>
-            <h2 className="md:text-2xl text-lg mb-1">$199.99</h2>
-          <p className="md:text-md text-xs text-green-500">in-stock</p>
-          </div>
-          <button className=" w-[98%] md:text-lg text-sm flex gap-3  items-center justify-center bg-black rounded-md text-white py-2 mx-auto"><FiShoppingCart/>Add to Cart</button>
-          <p className="md:text-md text-xs mb-4 mx-auto">by starseller</p>
-          </div>
-          </div>
-         
+
+          <h2 className="text-2xl mt-3 font-semibold">
+            ${product.price}
+          </h2>
+
+          <p
+            className={`text-sm mt-1 ${
+              product.stock > 0
+                ? "text-green-500"
+                : "text-red-500"
+            }`}
+          >
+            {product.stock > 0
+              ? `${product.stock} In Stock`
+              : "Out Of Stock"}
+          </p>
         </div>
-  )
+      </Link>
+
+      <div className="px-4 pb-4">
+        <button
+          onClick={addToCart}
+          disabled={product.stock <= 0}
+          className="w-full flex items-center justify-center gap-3 bg-black text-white py-2 rounded-md disabled:bg-gray-400"
+        >
+          <FiShoppingCart />
+          Add To Cart
+        </button>
+      </div>
+    </div>
+  );
 }
 
-export default card
+export default ShoppingCard;
+
