@@ -1,27 +1,17 @@
-
 import React from "react";
 import { CiStar } from "react-icons/ci";
 
 function SmallCard({ product }) {
-  const getImageUrl = () => {
-    if (!product.thumbnail) {
-      return "https://via.placeholder.com/220x180";
-    }
-    if (product.thumbnail.startsWith('http')) {
-      return product.thumbnail;
-    }
-    return `data:image/jpeg;base64,${product.thumbnail}`;
-  };
-
   return (
     <div className="mb-10 rounded-2xl min-w-[220px] border overflow-hidden group hover:shadow-lg bg-white">
       <div className="w-full h-[180px] overflow-hidden">
         <img
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          src={getImageUrl()}
+          src={`http://localhost:3000/product-image/${product.id}`}
           alt={product.name}
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/220x180";
+            e.target.src =
+              "https://via.placeholder.com/300x300?text=No+Image";
           }}
         />
       </div>
@@ -33,7 +23,6 @@ function SmallCard({ product }) {
 
         <div className="flex items-center gap-2 mt-2">
           <CiStar />
-
           <span>
             {Number(
               product.rating || 0
@@ -54,4 +43,3 @@ function SmallCard({ product }) {
 }
 
 export default SmallCard;
-

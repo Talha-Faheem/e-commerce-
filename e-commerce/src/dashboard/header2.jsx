@@ -1,6 +1,6 @@
 import React from 'react'
 
-import header from "../component/header";
+import Header from "../component/header";
 import { IoReorderThreeOutline } from "react-icons/io5";
 import { IoIosNotifications } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";

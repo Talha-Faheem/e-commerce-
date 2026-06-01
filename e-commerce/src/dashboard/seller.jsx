@@ -2,10 +2,14 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
 import { IoReorderThreeOutline } from "react-icons/io5";
 import { IoIosNotifications } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
-import { MdInventory, MdOutlineLogout } from "react-icons/md";
+import {
+  MdInventory,
+  MdOutlineLogout,
+} from "react-icons/md";
 import { BsBoxSeamFill } from "react-icons/bs";
 import { FaChartLine } from "react-icons/fa";
 import { AiOutlineDashboard } from "react-icons/ai";
@@ -19,6 +23,12 @@ function Seller() {
   const [sellerdata, setSellerdata] =
     useState({});
 
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
   const [sidebarOpen, setSidebarOpen] =
     useState(true);
 
@@ -26,31 +36,102 @@ function Seller() {
     useState("inventory");
 
   const user = JSON.parse(
-    localStorage.getItem("user")
+    localStorage.getItem("user") || "{}"
   );
 
   const sellerId =
     user?.seller_id;
 
-  const sellerdetial = async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/sellerdetail/${sellerId}`
-      );
+  const fetchSellerData =
+    async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const data = await res.json();
+        const response =
+          await fetch(
+            `http://localhost:3000/sellerdetail/${sellerId}`
+          );
 
-      setSellerdata(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+        const data =
+          await response.json();
+
+        console.log(
+          "Seller Response:",
+          data
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Failed to fetch seller data"
+          );
+        }
+
+        setSellerdata(data);
+      } catch (err) {
+        console.error(
+          "Seller Error:",
+          err
+        );
+
+        setError(
+          err.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
-    if (sellerId) {
-      sellerdetial();
+    if (!sellerId) {
+      setError(
+        "Seller ID not found"
+      );
+      setLoading(false);
+      return;
     }
+
+    fetchSellerData();
   }, [sellerId]);
+
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <h2 className="text-xl font-semibold">
+          Loading...
+        </h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen flex-col gap-4">
+        <h2 className="text-red-500 text-xl font-semibold">
+          Error Loading Seller Data
+        </h2>
+
+        <p className="text-gray-600">
+          {error}
+        </p>
+
+        <button
+          onClick={
+            fetchSellerData
+          }
+          className="bg-purple-600 text-white px-6 py-2 rounded-lg"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -61,19 +142,22 @@ function Seller() {
             : "w-0 overflow-hidden"
         }`}
       >
-        <div className="p-6">
+        <div className="p-6 border-b">
           <h2 className="text-2xl font-bold">
             Seller Panel
           </h2>
         </div>
 
-        <div className="flex flex-col gap-2 px-4">
+        <div className="flex flex-col gap-2 p-4">
           <button
             onClick={() =>
-              setActivePage("dashboard")
+              setActivePage(
+                "dashboard"
+              )
             }
-            className={`flex items-center gap-3 p-4 rounded-xl ${
-              activePage === "dashboard"
+            className={`flex items-center gap-3 p-4 rounded-xl transition ${
+              activePage ===
+              "dashboard"
                 ? "bg-purple-600 text-white"
                 : "hover:bg-gray-100"
             }`}
@@ -84,10 +168,13 @@ function Seller() {
 
           <button
             onClick={() =>
-              setActivePage("inventory")
+              setActivePage(
+                "inventory"
+              )
             }
-            className={`flex items-center gap-3 p-4 rounded-xl ${
-              activePage === "inventory"
+            className={`flex items-center gap-3 p-4 rounded-xl transition ${
+              activePage ===
+              "inventory"
                 ? "bg-purple-600 text-white"
                 : "hover:bg-gray-100"
             }`}
@@ -98,10 +185,13 @@ function Seller() {
 
           <button
             onClick={() =>
-              setActivePage("orders")
+              setActivePage(
+                "orders"
+              )
             }
-            className={`flex items-center gap-3 p-4 rounded-xl ${
-              activePage === "orders"
+            className={`flex items-center gap-3 p-4 rounded-xl transition ${
+              activePage ===
+              "orders"
                 ? "bg-purple-600 text-white"
                 : "hover:bg-gray-100"
             }`}
@@ -112,10 +202,13 @@ function Seller() {
 
           <button
             onClick={() =>
-              setActivePage("analytics")
+              setActivePage(
+                "analytics"
+              )
             }
-            className={`flex items-center gap-3 p-4 rounded-xl ${
-              activePage === "analytics"
+            className={`flex items-center gap-3 p-4 rounded-xl transition ${
+              activePage ===
+              "analytics"
                 ? "bg-purple-600 text-white"
                 : "hover:bg-gray-100"
             }`}
@@ -127,9 +220,9 @@ function Seller() {
       </aside>
 
       <div className="flex-1">
-        <header className="flex justify-center py-4 bg-white shadow-md sticky top-0 z-50">
-          <div className="w-[95%] flex justify-between items-center">
-            <div className="flex gap-4 items-center">
+        <header className="sticky top-0 z-50 bg-white shadow-md">
+          <div className="w-[95%] mx-auto flex justify-between items-center py-4">
+            <div className="flex items-center gap-4">
               <button
                 onClick={() =>
                   setSidebarOpen(
@@ -147,25 +240,26 @@ function Seller() {
               </h2>
             </div>
 
-            <div className="flex gap-5 items-center">
+            <div className="flex items-center gap-5">
               <IoIosNotifications
                 size={24}
               />
 
               <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
-                <CgProfile size={22} />
+                <CgProfile
+                  size={22}
+                />
 
                 <span>
-                  {user?.name}
+                  {user?.name ||
+                    "Seller"}
                 </span>
               </div>
 
               <button
-                onClick={() => {
-                  localStorage.clear();
-                  window.location.href =
-                    "/";
-                }}
+                onClick={
+                  logout
+                }
               >
                 <MdOutlineLogout
                   size={24}
@@ -179,16 +273,20 @@ function Seller() {
           {activePage ===
             "dashboard" && (
             <Sellerdashboard
-              data={sellerdata}
+              data={
+                sellerdata
+              }
             />
           )}
 
           {activePage ===
             "inventory" && (
             <Inventory
-              data={sellerdata}
+              data={
+                sellerdata
+              }
               refreshProducts={
-                sellerdetial
+                fetchSellerData
               }
             />
           )}
@@ -196,14 +294,18 @@ function Seller() {
           {activePage ===
             "orders" && (
             <Orderhistory
-              data={sellerdata}
+              data={
+                sellerdata
+              }
             />
           )}
 
           {activePage ===
             "analytics" && (
             <ProductAnalytics
-              data={sellerdata}
+              data={
+                sellerdata
+              }
             />
           )}
         </main>
@@ -213,4 +315,3 @@ function Seller() {
 }
 
 export default Seller;
-

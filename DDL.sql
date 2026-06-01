@@ -145,14 +145,16 @@ CURRENT_TIMESTAMP,
         FOREIGN KEY (product_id) REFERENCES products(id) 
 ); 
  
-CREATE TABLE product_images ( 
-    id INT PRIMARY KEY AUTO_INCREMENT, 
-    product_id INT NOT NULL, 
-    image_url VARCHAR(255) NOT NULL, 
- 
-    CONSTRAINT fk_product_images_product 
-        FOREIGN KEY (product_id) REFERENCES products(id) 
-); 
+CREATE TABLE product_images (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    image_data LONGBLOB NOT NULL,
+    image_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_product_images_product
+        FOREIGN KEY (product_id) REFERENCES products(id)
+);
  
 CREATE TABLE addresses ( 
     id INT PRIMARY KEY AUTO_INCREMENT, 

@@ -1,11 +1,11 @@
 import { Navigate } from "react-router-dom";
-import { useauth } from "./utilities/authprovider";
+import { useAuth } from "./utilities/authprovider";
 
 export default function RoleProtectedRoute({
   children,
   allowedRole,
 }) {
-  const { user, loading } = useauth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;

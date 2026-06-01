@@ -3,11 +3,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ShoppingBag, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useauth } from "../utilities/authprovider";
+import { useAuth } from "../utilities/authprovider";
 
 function Login() {
   const navigate = useNavigate();
-  const { setUser } = useauth();
+  const { setUser } = useAuth();
 
   const [activeTab, setActiveTab] = useState("login");
   const [selectedRole, setSelectedRole] = useState("customer");

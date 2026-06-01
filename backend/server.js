@@ -16,7 +16,6 @@ const upload = multer({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// app.use(express.static("views"));
 
 function verifyToken(req, res, next) {
   const authHeader =
@@ -51,10 +50,12 @@ function verifyToken(req, res, next) {
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   }),
 );
+
+app.use("/uploads", express.static("uploads"));
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -304,155 +305,310 @@ app.post("/login", (req, res) => {
 
 
 
-app.get("/sellerdetial", function (req, res) {
-  const sellerId = 5;
+app.get("/sellerdetail/:sellerId", (req, res) => {
+  const sellerId = req.params.sellerId;
 
-  const sql1 = `
-    SELECT *
-    FROM sellers
-    WHERE user_id = ${sellerId}
+  const sellerSql = `
+    SELECT
+      s.*,
+      u.name,
+      u.email,
+      u.phone
+    FROM sellers s
+    JOIN users u
+      ON s.user_id = u.id
+    WHERE s.id = ?
   `;
 
-  const sql2 = `
-    SELECT r.*, p.name AS product_name
+  const reviewSql = `
+    SELECT
+      r.*,
+      p.name AS product_name
     FROM reviews r
-    JOIN products p ON r.product_id = p.id
-    WHERE p.seller_id = ${sellerId}
+    JOIN products p
+      ON r.product_id = p.id
+    WHERE p.seller_id = ?
   `;
 
-  const sql3 = `
+  const ordersSql = `
     SELECT *
     FROM order_items
-    WHERE seller_id = ${sellerId}
+    WHERE seller_id = ?
   `;
 
-  const sql4 = `
+  const totalOrderSql = `
     SELECT COUNT(*) AS total
     FROM order_items
-    WHERE seller_id = ${sellerId}
+    WHERE seller_id = ?
   `;
 
-  const sql5 = `
+  const productsSql = `
+    SELECT
+      p.*,
+      COALESCE(i.stock,0) AS stock,
+      COALESCE(i.reserved_stock,0) AS reserved_stock,
+      i.warehouse_location,
+      i.updated_at
+    FROM products p
+    LEFT JOIN inventory i
+      ON p.id = i.product_id
+    WHERE p.seller_id = ?
+  `;
+
+  const revenueSql = `
+    SELECT
+      COALESCE(SUM(subtotal),0) AS total
+    FROM order_items
+    WHERE seller_id = ?
+  `;
+
+const topProductsSql = `
 SELECT
-    p.*,
-    COALESCE(i.stock,0) AS stock
+  p.id,
+  p.name,
+  p.price,
+  MAX(COALESCE(i.stock,0)) AS stock,
+  COUNT(oi.id) AS sales
 FROM products p
 LEFT JOIN inventory i
 ON p.id = i.product_id
-WHERE p.seller_id = ${sellerId}
+LEFT JOIN order_items oi
+ON p.id = oi.product_id
+WHERE p.seller_id = ?
+GROUP BY
+  p.id,
+  p.name,
+  p.price
+ORDER BY sales DESC
+LIMIT 3
 `;
 
-  const sql6 = `
-    SELECT SUM(subtotal) AS total
-    FROM order_items
-    WHERE seller_id = ${sellerId}
-  `;
-
-  const sql7 = `
-    SELECT
-        p.id,
-        p.name,
-        p.price,
-        p.thumbnail,
-        COALESCE(AVG(r.rating),0) AS rating,
-        COALESCE(MAX(i.stock),0) AS stock
-    FROM products p
-    LEFT JOIN reviews r
-        ON p.id = r.product_id
-    LEFT JOIN inventory i
-        ON p.id = i.product_id
-    WHERE p.seller_id = ${sellerId}
-    GROUP BY p.id
-    ORDER BY rating DESC
-    LIMIT 3
-  `;
-
-  db.query(sql1, (err, sellerResult) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: "seller query failed",
-      });
-    }
-
-    db.query(sql2, (err, productReview) => {
+  db.query(
+    sellerSql,
+    [sellerId],
+    (err, sellerResult) => {
       if (err) {
         return res.status(500).json({
           success: false,
-          message: "review query failed",
+          message: "Seller query failed",
+          error: err.message,
         });
       }
 
-      db.query(sql3, (err, orders) => {
-        if (err) {
-          return res.status(500).json({
-            success: false,
-            message: "orders query failed",
-          });
-        }
-
-        db.query(sql4, (err, totalorder) => {
+      db.query(
+        reviewSql,
+        [sellerId],
+        (err, productReview) => {
           if (err) {
             return res.status(500).json({
               success: false,
-              message: "total order query failed",
+              message: "Review query failed",
+              error: err.message,
             });
           }
 
-          db.query(sql5, (err, products) => {
-            if (err) {
-              return res.status(500).json({
-                success: false,
-                message: "products query failed",
-              });
-            }
-
-            db.query(sql6, (err, revenue) => {
+          db.query(
+            ordersSql,
+            [sellerId],
+            (err, orders) => {
               if (err) {
                 return res.status(500).json({
                   success: false,
-                  message: "revenue query failed",
+                  message: "Orders query failed",
+                  error: err.message,
                 });
               }
 
-              db.query(sql7, (err, topProducts) => {
-                if (err) {
-                  return res.status(500).json({
-                    success: false,
-                    message: "top products query failed",
-                  });
-                }
+              db.query(
+                totalOrderSql,
+                [sellerId],
+                (err, totalorder) => {
+                  if (err) {
+                    return res.status(500).json({
+                      success: false,
+                      message:
+                        "Total order query failed",
+                      error: err.message,
+                    });
+                  }
 
-                res.status(200).json({
-                  success: true,
-                  seller: sellerResult,
-                  productReview,
-                  products,
-                  order: orders,
-                  totalorder: totalorder[0].total,
-                  revenue: revenue[0].total || 0,
-                  topProducts,
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+                  db.query(
+                    productsSql,
+                    [sellerId],
+                    (err, products) => {
+                      if (err) {
+                        return res.status(500).json({
+                          success: false,
+                          message:
+                            "Products query failed",
+                          error: err.message,
+                        });
+                      }
+
+                      db.query(
+                        revenueSql,
+                        [sellerId],
+                        (err, revenue) => {
+                          if (err) {
+                            return res.status(500).json({
+                              success: false,
+                              message:
+                                "Revenue query failed",
+                              error:
+                                err.message,
+                            });
+                          }
+
+                          db.query(
+                            topProductsSql,
+                            [sellerId],
+                            (
+                              err,
+                              topProducts
+                            ) => {
+                              if (err) {
+                                return res.status(
+                                  500
+                                ).json({
+                                  success:
+                                    false,
+                                  message:
+                                    "Top products query failed",
+                                  error:
+                                    err.message,
+                                });
+                              }
+
+                              res.json({
+                                success: true,
+                                seller:
+                                  sellerResult[0],
+                                productReview,
+                                products,
+                                orders,
+                                totalorder:
+                                  totalorder[0]
+                                    .total,
+                                revenue:
+                                  revenue[0]
+                                    .total,
+                                topProducts,
+                              });
+                            }
+                          );
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
-app.get("/orderperweek/:sellerId", (req, res) => {
+app.get(
+  "/salesperday/:sellerId",
+  (req, res) => {
+    const sellerId =
+      req.params.sellerId;
+
+    const sql = `
+      SELECT
+        DATE(o.created_at) AS day,
+        COALESCE(
+          SUM(oi.subtotal),
+          0
+        ) AS revenue
+      FROM orders o
+      JOIN order_items oi
+        ON o.id = oi.order_id
+      WHERE oi.seller_id = ?
+      AND o.created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+      GROUP BY DATE(o.created_at)
+      ORDER BY day ASC
+    `;
+
+    db.query(
+      sql,
+      [sellerId],
+      (err, result) => {
+        if (err) {
+          return res
+            .status(500)
+            .json(err);
+        }
+
+        const last7Days = [];
+
+        for (
+          let i = 6;
+          i >= 0;
+          i--
+        ) {
+          const date =
+            new Date();
+
+          date.setDate(
+            date.getDate() - i
+          );
+
+          const formatted =
+            date
+              .toISOString()
+              .split("T")[0];
+
+          const found =
+            result.find(
+              (item) =>
+                new Date(
+                  item.day
+                )
+                  .toISOString()
+                  .split(
+                    "T"
+                  )[0] ===
+                formatted
+            );
+
+          last7Days.push({
+            day: formatted,
+            revenue: found
+              ? Number(
+                  found.revenue
+                )
+              : 0,
+          });
+        }
+
+        res.json({
+          success: true,
+          salesdata:
+            last7Days,
+        });
+      }
+    );
+  }
+);
+
+
+app.get("/orderperday/:sellerId", (req, res) => {
   const sellerId = req.params.sellerId;
 
   const sql = `
-  SELECT
-      DAYNAME(o.created_at) AS day,
-      SUM(o.total_amount) AS total_amount
-  FROM orders o
-  JOIN order_items oi ON o.id = oi.order_id
-  WHERE oi.seller_id = ?
-  GROUP BY DAYNAME(o.created_at)
+    SELECT
+      DATE(o.created_at) AS day,
+      COUNT(DISTINCT o.id) AS total_orders
+    FROM orders o
+    JOIN order_items oi
+      ON o.id = oi.order_id
+    WHERE oi.seller_id = ?
+      AND o.created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(o.created_at)
+    ORDER BY day ASC
   `;
 
   db.query(sql, [sellerId], (err, result) => {
@@ -460,55 +616,36 @@ app.get("/orderperweek/:sellerId", (req, res) => {
       return res.status(500).json(err);
     }
 
+    const last7Days = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+
+      const formatted =
+        date.toISOString().split("T")[0];
+
+      const found = result.find(
+        (item) =>
+          new Date(item.day)
+            .toISOString()
+            .split("T")[0] === formatted
+      );
+
+      last7Days.push({
+        day: formatted,
+        total_orders: found
+          ? found.total_orders
+          : 0,
+      });
+    }
+
     res.json({
       success: true,
-      orderdata: result,
+      orderdata: last7Days,
     });
   });
 });
-
-
-app.get(
-  "/orderperday/:sellerId",
-  function (req, res) {
-    const sellerId =
-      req.params.sellerId;
-
-    const sql = `
-      SELECT
-        DAYNAME(o.created_at) AS day,
-        COUNT(DISTINCT o.id) AS total_orders
-      FROM orders o
-      JOIN order_items oi
-        ON o.id = oi.order_id
-      WHERE oi.seller_id = ?
-      GROUP BY DATE(o.created_at),
-               DAYNAME(o.created_at)
-      ORDER BY DATE(o.created_at) DESC
-      LIMIT 7
-    `;
-
-    db.query(
-      sql,
-      [sellerId],
-      (err, orderdetail) => {
-        if (err) {
-          return res.status(500).json({
-            success: false,
-            message:
-              "Order query failed",
-            error: err.message,
-          });
-        }
-
-        res.status(200).json({
-          success: true,
-          orderdata: orderdetail,
-        });
-      }
-    );
-  }
-);
 
 
 
@@ -586,77 +723,129 @@ app.put("/seller/order/status/:orderId", (req, res) => {
 });
 
 
-app.post("/addproduct", upload.single('file'), (req, res) => {
-  const {
-    seller_id,
-    category_id,
-    name,
-    description,
-    price,
-    stock,
-  } = req.body;
-
-  // Convert file buffer to Base64
-  let imageData = null;
-  if (req.file) {
-    imageData = req.file.buffer.toString('base64');
-  }
-
-  const slug =
-    name.toLowerCase().replace(/\s+/g, "-") +
-    "-" +
-    Date.now();
-
-  const sql = `
-    INSERT INTO products
-    (
+app.post(
+  "/addproduct",
+  upload.single("file"),
+  (req, res) => {
+    const {
       seller_id,
       category_id,
       name,
-      slug,
       description,
       price,
-      thumbnail,
-      status
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
-  `;
+      stock,
+    } = req.body;
 
-  db.query(
-    sql,
-    [
-      seller_id,
-      category_id,
-      name,
-      slug,
-      description,
-      price,
-      imageData,
-    ],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
+    const slug =
+      name
+        .toLowerCase()
+        .replace(/\s+/g, "-") +
+      "-" +
+      Date.now();
 
-      const productId = result.insertId;
+    const productSql = `
+      INSERT INTO products
+      (
+        seller_id,
+        category_id,
+        name,
+        slug,
+        description,
+        price,
+        status
+      )
+      VALUES
+      (?, ?, ?, ?, ?, ?, 'active')
+    `;
 
-      db.query(
-        `INSERT INTO inventory(product_id,stock)
-         VALUES (?,?)`,
-        [productId, stock],
-        (err2) => {
-          if (err2) {
-            return res.status(500).json(err2);
-          }
-
-          res.json({
-            success: true,
-          });
+    db.query(
+      productSql,
+      [
+        seller_id,
+        category_id,
+        name,
+        slug,
+        description,
+        price,
+      ],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .json(err);
         }
-      );
-    }
-  );
-});
+
+        const productId =
+          result.insertId;
+
+        const inventorySql = `
+          INSERT INTO inventory
+          (
+            product_id,
+            stock
+          )
+          VALUES (?,?)
+        `;
+
+        db.query(
+          inventorySql,
+          [productId, stock],
+          (err2) => {
+            if (err2) {
+              console.log(err2);
+              return res
+                .status(500)
+                .json(err2);
+            }
+
+            if (!req.file) {
+              return res.json({
+                success: true,
+                message:
+                  "Product added without image",
+              });
+            }
+
+            const imageSql = `
+              INSERT INTO product_images
+              (
+                product_id,
+                image_data,
+                image_type
+              )
+              VALUES
+              (?, ?, ?)
+            `;
+
+            db.query(
+              imageSql,
+              [
+                productId,
+                req.file.buffer,
+                req.file.mimetype,
+              ],
+              (err3) => {
+                if (err3) {
+                  console.log(err3);
+                  return res
+                    .status(500)
+                    .json(err3);
+                }
+
+                res.json({
+                  success: true,
+                  message:
+                    "Product added successfully",
+                });
+              }
+            );
+          }
+        );
+      }
+    );
+  }
+);
 
 app.put("/updateproduct/:id", upload.single('file'), (req, res) => {
   const productId = req.params.id;
@@ -669,7 +858,7 @@ app.put("/updateproduct/:id", upload.single('file'), (req, res) => {
     category_id,
   } = req.body;
 
-  // If a new file is provided, convert it to Base64
+  
   if (req.file) {
     const imageData = req.file.buffer.toString('base64');
     
@@ -717,7 +906,7 @@ app.put("/updateproduct/:id", upload.single('file'), (req, res) => {
       }
     );
   } else {
-    // Update without changing the image
+    
     db.query(
       `
       UPDATE products
@@ -762,34 +951,117 @@ app.put("/updateproduct/:id", upload.single('file'), (req, res) => {
   }
 });
 
-app.delete("/deleteproduct/:id", (req, res) => {
-  const productId = req.params.id;
+app.delete(
+  "/deleteproduct/:id",
+  (req, res) => {
+    const productId =
+      req.params.id;
 
-  db.query(
-    "DELETE FROM inventory WHERE product_id=?",
-    [productId],
-    (err) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
+    db.query(
+      "DELETE FROM cart_items WHERE product_id=?",
+      [productId],
+      (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json(err);
 
-      db.query(
-        "DELETE FROM products WHERE id=?",
-        [productId],
-        (err2) => {
-          if (err2) {
-            return res.status(500).json(err2);
+        db.query(
+          "DELETE FROM wishlist_items WHERE product_id=?",
+          [productId],
+          (err2) => {
+            if (err2)
+              return res
+                .status(500)
+                .json(err2);
+
+            db.query(
+              "DELETE FROM reviews WHERE product_id=?",
+              [productId],
+              (err3) => {
+                if (err3)
+                  return res
+                    .status(500)
+                    .json(err3);
+
+                db.query(
+                  "DELETE FROM order_items WHERE product_id=?",
+                  [productId],
+                  (err4) => {
+                    if (err4)
+                      return res
+                        .status(500)
+                        .json(err4);
+
+                    db.query(
+                      "DELETE FROM product_images WHERE product_id=?",
+                      [productId],
+                      (err5) => {
+                        if (err5)
+                          return res
+                            .status(500)
+                            .json(err5);
+
+                        db.query(
+                          "DELETE FROM inventory WHERE product_id=?",
+                          [productId],
+                          (
+                            err6
+                          ) => {
+                            if (
+                              err6
+                            )
+                              return res
+                                .status(
+                                  500
+                                )
+                                .json(
+                                  err6
+                                );
+
+                            db.query(
+                              "DELETE FROM products WHERE id=?",
+                              [
+                                productId,
+                              ],
+                              (
+                                err7
+                              ) => {
+                                if (
+                                  err7
+                                )
+                                  return res
+                                    .status(
+                                      500
+                                    )
+                                    .json(
+                                      err7
+                                    );
+
+                                res.json(
+                                  {
+                                    success:
+                                      true,
+                                    message:
+                                      "Product deleted successfully",
+                                  }
+                                );
+                              }
+                            );
+                          }
+                        );
+                      }
+                    );
+                  }
+                );
+              }
+            );
           }
-
-          res.json({
-            success: true,
-          });
-        }
-      );
-    }
-  );
-});
-
+        );
+      }
+    );
+  }
+);
 app.get("/customer/orders/:customerId", (req, res) => {
   const customerId = req.params.customerId;
 
@@ -889,63 +1161,154 @@ app.get("/products", (req, res) => {
   });
 });
 
+app.get("/product-image/:id", (req, res) => {
+  const sql = `
+    SELECT image_data,image_type
+    FROM product_images
+    WHERE product_id=?
+    LIMIT 1
+  `;
 
+  db.query(sql, [req.params.id], (err, result) => {
+    if (err || result.length === 0) {
+      return res.status(404).send("Image not found");
+    }
+
+    res.set(
+      "Content-Type",
+      result[0].image_type
+    );
+
+    res.send(result[0].image_data);
+  });
+});
 
 app.get("/homepage", (req, res) => {
   const categoriesSql = `
     SELECT *
     FROM categories
-    WHERE status='active'
+    WHERE status = 'active'
   `;
 
   const featuredSql = `
     SELECT
-      p.*,
-      COALESCE(i.stock,0) AS stock,
+      p.id,
+      p.name,
+      p.slug,
+      p.description,
+      p.price,
+      p.discount_price,
+      p.status,
+      MAX(COALESCE(i.stock,0)) AS stock,
       COALESCE(AVG(r.rating),0) AS rating
     FROM products p
     LEFT JOIN inventory i
-      ON p.id=i.product_id
+      ON p.id = i.product_id
     LEFT JOIN reviews r
-      ON p.id=r.product_id
-    GROUP BY p.id
+      ON p.id = r.product_id
+    GROUP BY
+      p.id,
+      p.name,
+      p.slug,
+      p.description,
+      p.price,
+      p.discount_price,
+      p.status
     ORDER BY rating DESC
     LIMIT 8
   `;
 
   const trendingSql = `
     SELECT
-      p.*,
-      COALESCE(i.stock,0) AS stock,
+      p.id,
+      p.name,
+      p.slug,
+      p.description,
+      p.price,
+      p.discount_price,
+      p.status,
+      MAX(COALESCE(i.stock,0)) AS stock,
       COUNT(oi.id) AS sales
     FROM products p
     LEFT JOIN inventory i
-      ON p.id=i.product_id
+      ON p.id = i.product_id
     LEFT JOIN order_items oi
-      ON p.id=oi.product_id
-    GROUP BY p.id
+      ON p.id = oi.product_id
+    GROUP BY
+      p.id,
+      p.name,
+      p.slug,
+      p.description,
+      p.price,
+      p.discount_price,
+      p.status
     ORDER BY sales DESC
     LIMIT 8
   `;
 
-  db.query(categoriesSql, (err, categories) => {
-    if (err) return res.status(500).json(err);
+  db.query(
+    categoriesSql,
+    (err, categories) => {
+      if (err) {
+        console.log(err);
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message:
+              "Categories query failed",
+          });
+      }
 
-    db.query(featuredSql, (err, featured) => {
-      if (err) return res.status(500).json(err);
+      const categoriesWithImages =
+        categories.map((cat) => ({
+          ...cat,
+          image: cat.image
+            ? `http://localhost:3000/uploads/${cat.image}`
+            : null,
+        }));
 
-      db.query(trendingSql, (err, trending) => {
-        if (err) return res.status(500).json(err);
+      db.query(
+        featuredSql,
+        (err, featured) => {
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .json({
+                success: false,
+                message:
+                  "Featured products query failed",
+              });
+          }
 
-        res.json({
-          success: true,
-          categories,
-          featured,
-          trending,
-        });
-      });
-    });
-  });
+          db.query(
+            trendingSql,
+            (err, trending) => {
+              if (err) {
+                console.log(err);
+                return res
+                  .status(500)
+                  .json({
+                    success: false,
+                    message:
+                      "Trending products query failed",
+                  });
+              }
+
+              res.json({
+                success: true,
+                categories:
+                  categoriesWithImages,
+                featured,
+                trending,
+              });
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
 
@@ -954,19 +1317,15 @@ app.get("/cart/:customerId", (req, res) => {
 
   const sql = `
   SELECT
-    ci.id,
-    ci.quantity,
-    p.id AS product_id,
-    p.name,
-    p.price,
-    p.thumbnail,
-    (ci.quantity * p.price) AS subtotal
-  FROM carts c
-  JOIN cart_items ci
-    ON c.id = ci.cart_id
-  JOIN products p
-    ON ci.product_id = p.id
-  WHERE c.customer_id = ?
+ci.id,
+ci.product_id,
+ci.quantity,
+p.name,
+p.price,
+(ci.quantity * p.price) AS subtotal
+FROM cart_items ci
+JOIN products p
+ON ci.product_id = p.id
   `;
 
   db.query(sql, [customerId], (err, result) => {

@@ -22,7 +22,7 @@ function Cart({ close }) {
         `http://localhost:3000/cart/${customerId}`
       );
 
-      setCart(res.data.cart);
+      setCart(res.data.cart || []);
     } catch (error) {
       console.log(error);
     }
@@ -35,7 +35,8 @@ function Cart({ close }) {
   }, [customerId]);
 
   const total = cart.reduce(
-    (sum, item) => sum + Number(item.subtotal),
+    (sum, item) =>
+      sum + Number(item.subtotal || 0),
     0
   );
 
@@ -91,7 +92,7 @@ function Cart({ close }) {
         <button
           onClick={checkout}
           disabled={cart.length === 0}
-          className="w-full bg-black text-white py-3 rounded-lg"
+          className="w-full bg-black text-white py-3 rounded-lg disabled:bg-gray-400"
         >
           Proceed To Checkout
         </button>

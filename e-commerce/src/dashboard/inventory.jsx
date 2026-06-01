@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import {
-  FaPlus,
-  FaCircleExclamation,
-} from "react-icons/fa6";
+import React, {
+  useState,
+  useMemo,
+} from "react";
+
+import { FaPlus } from "react-icons/fa6";
+import { FaCircleExclamation } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 
 import Addproduct from "./addproduct";
@@ -16,36 +18,62 @@ function Inventory({
     useState("");
 
   const [
-    showAddModal,
-    setShowAddModal,
-  ] = useState(false);
-
-  const [
     stockFilter,
     setStockFilter,
   ] = useState("");
+
+  const [
+    showAddModal,
+    setShowAddModal,
+  ] = useState(false);
 
   const products =
     data?.products || [];
 
   const lowStock =
-    products.filter(
-      (item) =>
-        item.stock > 0 &&
-        item.stock <= 5
+    useMemo(
+      () =>
+        products.filter(
+          (product) =>
+            Number(
+              product.stock
+            ) > 0 &&
+            Number(
+              product.stock
+            ) <= 5
+        ),
+      [products]
     );
 
   const outOfStock =
-    products.filter(
-      (item) => item.stock === 0
+    useMemo(
+      () =>
+        products.filter(
+          (product) =>
+            Number(
+              product.stock
+            ) === 0
+        ),
+      [products]
     );
 
   const totalStock =
     products.reduce(
-      (sum, item) =>
+      (sum, product) =>
         sum +
         Number(
-          item.stock || 0
+          product.stock || 0
+        ),
+      0
+    );
+
+  const reservedStock =
+    products.reduce(
+      (sum, product) =>
+        sum +
+        Number(
+          product.reserved_stock ||
+            0
         ),
       0
     );
@@ -58,19 +86,32 @@ function Inventory({
             ?.toLowerCase()
             .includes(
               search.toLowerCase()
-            ) || false;
+            ) ||
+          product.category_name
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            );
 
         const matchesStock =
           stockFilter === ""
             ? true
             : stockFilter ===
               "available"
-            ? product.stock > 5
+            ? Number(
+                product.stock
+              ) > 5
             : stockFilter ===
               "low"
-            ? product.stock > 0 &&
-              product.stock <= 5
-            : product.stock === 0;
+            ? Number(
+                product.stock
+              ) > 0 &&
+              Number(
+                product.stock
+              ) <= 5
+            : Number(
+                product.stock
+              ) === 0;
 
         return (
           matchesSearch &&
@@ -81,18 +122,17 @@ function Inventory({
 
   return (
     <>
-      <div className="w-[90%] mx-auto mt-4 flex flex-col gap-5">
-        <div className="w-full flex justify-between items-center">
+      <div className="w-[90%] mx-auto mt-5 flex flex-col gap-5">
+        <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-medium mb-2">
+            <h2 className="text-2xl font-bold">
               Inventory
               Management
             </h2>
 
             <p className="text-gray-500">
-              Manage your
-              products and stock
-              levels
+              Manage products
+              and inventory
             </p>
           </div>
 
@@ -102,51 +142,65 @@ function Inventory({
                 true
               )
             }
-            className="flex gap-3 p-3 items-center rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg"
           >
             <FaPlus />
-
-            <p>
-              Add Product
-            </p>
+            Add Product
           </button>
         </div>
 
-        <div className="flex justify-between gap-4 flex-wrap">
-          <div className="flex-1 min-w-[250px] rounded-lg border-green-300 border-2 p-4 shadow-sm bg-white">
-            <h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="bg-white border-2 border-green-300 rounded-lg p-4">
+            <h3>
               Total Products
-            </h2>
+            </h3>
 
             <h2 className="text-3xl font-bold">
               {products.length}
             </h2>
 
-            <p className="text-sm text-green-500">
+            <p className="text-green-600 text-sm">
               {totalStock} units
-              in inventory
             </p>
           </div>
 
-          <div className="flex-1 min-w-[250px] rounded-lg border-yellow-300 border-2 p-4 shadow-sm bg-white">
-            <h2>
-              Low Stock
+          <div className="bg-white border-2 border-blue-300 rounded-lg p-4">
+            <h3>
+              Reserved Stock
+            </h3>
+
+            <h2 className="text-3xl font-bold text-blue-500">
+              {
+                reservedStock
+              }
             </h2>
+
+            <p className="text-blue-500 text-sm">
+              Reserved units
+            </p>
+          </div>
+
+          <div className="bg-white border-2 border-yellow-300 rounded-lg p-4">
+            <h3>
+              Low Stock
+            </h3>
 
             <h2 className="text-3xl font-bold text-yellow-500">
-              {lowStock.length}
+              {
+                lowStock.length
+              }
             </h2>
 
-            <p className="text-sm text-yellow-500">
-              Items below 5
+            <p className="text-yellow-500 text-sm">
+              Less than 5
               units
             </p>
           </div>
 
-          <div className="flex-1 min-w-[250px] rounded-lg border-red-300 border-2 p-4 shadow-sm bg-white">
-            <h2>
+          <div className="bg-white border-2 border-red-300 rounded-lg p-4">
+            <h3>
               Out Of Stock
-            </h2>
+            </h3>
 
             <h2 className="text-3xl font-bold text-red-500">
               {
@@ -154,43 +208,42 @@ function Inventory({
               }
             </h2>
 
-            <p className="text-sm text-red-500">
-              Needs
-              restocking
+            <p className="text-red-500 text-sm">
+              Need restocking
             </p>
           </div>
         </div>
 
         {lowStock.length >
           0 && (
-          <div className="flex gap-5 p-4 bg-yellow-100 rounded-lg w-full px-6">
-            <FaCircleExclamation className="text-white bg-yellow-400 p-2 text-4xl rounded-md" />
+          <div className="flex gap-4 bg-yellow-100 p-4 rounded-lg">
+            <FaCircleExclamation className="text-4xl text-yellow-500" />
 
             <div>
-              <h4 className="text-yellow-800 font-medium text-lg">
-                Low Stock
-                Alert
-              </h4>
+              <h3 className="font-semibold text-yellow-700">
+                Low Stock Alert
+              </h3>
 
-              <p className="text-yellow-800">
+              <p className="text-yellow-700">
                 {
                   lowStock.length
                 }{" "}
                 product(s)
                 need
-                restocking
-                soon.
+                restocking.
               </p>
             </div>
           </div>
         )}
 
-        <div className="w-full rounded-lg bg-white shadow-md p-4 flex flex-col gap-5 mb-6">
-          <div className="flex justify-between gap-4">
-            <div className="flex items-center rounded-lg p-2 gap-3 bg-gray-200 flex-1">
-              <IoSearch className="text-gray-500" />
+        <div className="bg-white p-5 rounded-lg shadow">
+          <div className="flex flex-wrap gap-4 mb-6">
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg flex-1">
+              <IoSearch />
 
               <input
+                type="text"
+                placeholder="Search products..."
                 value={
                   search
                 }
@@ -202,47 +255,43 @@ function Inventory({
                       .value
                   )
                 }
-                className="outline-none bg-gray-200 text-md font-normal w-full"
-                type="text"
-                placeholder="Search products..."
+                className="bg-transparent outline-none w-full"
               />
             </div>
 
-            <div className="w-[180px]">
-              <select
-                value={
-                  stockFilter
-                }
-                onChange={(
-                  e
-                ) =>
-                  setStockFilter(
-                    e.target
-                      .value
-                  )
-                }
-                className="w-full rounded-md text-md p-2 border"
-              >
-                <option value="">
-                  All Stock
-                </option>
+            <select
+              value={
+                stockFilter
+              }
+              onChange={(
+                e
+              ) =>
+                setStockFilter(
+                  e.target
+                    .value
+                )
+              }
+              className="border rounded-lg px-3 py-2"
+            >
+              <option value="">
+                All Stock
+              </option>
 
-                <option value="available">
-                  In Stock
-                </option>
+              <option value="available">
+                Available
+              </option>
 
-                <option value="low">
-                  Low Stock
-                </option>
+              <option value="low">
+                Low Stock
+              </option>
 
-                <option value="out">
-                  Out Of Stock
-                </option>
-              </select>
-            </div>
+              <option value="out">
+                Out Of Stock
+              </option>
+            </select>
           </div>
 
-          <div className="flex gap-4 flex-wrap justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             {filteredProducts.length >
             0 ? (
               filteredProducts.map(
@@ -264,8 +313,8 @@ function Inventory({
               )
             ) : (
               <div className="w-full text-center py-10 text-gray-500">
-                No products
-                found
+                No Products
+                Found
               </div>
             )}
           </div>
@@ -289,4 +338,3 @@ function Inventory({
 }
 
 export default Inventory;
-

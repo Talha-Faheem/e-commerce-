@@ -1,4 +1,3 @@
-
 import React from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -40,16 +39,6 @@ function ShoppingCard({ product }) {
     }
   };
 
-  const getImageUrl = () => {
-    if (!product.thumbnail) {
-      return "https://via.placeholder.com/320x270";
-    }
-    if (product.thumbnail.startsWith('http')) {
-      return product.thumbnail;
-    }
-    return `data:image/jpeg;base64,${product.thumbnail}`;
-  };
-
   return (
     <div className="mb-6 rounded-2xl lg:max-w-[320px] md:w-[43%] w-[90%] border overflow-hidden group hover:shadow-2xl duration-500">
       <Link
@@ -58,10 +47,11 @@ function ShoppingCard({ product }) {
         <div className="w-full h-[270px] overflow-hidden">
           <img
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-            src={getImageUrl()}
+            src={`http://localhost:3000/product-image/${product.id}`}
             alt={product.name}
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/320x270";
+              e.target.src =
+                "https://via.placeholder.com/300x300?text=No+Image";
             }}
           />
         </div>
@@ -73,7 +63,6 @@ function ShoppingCard({ product }) {
 
           <div className="flex items-center gap-2 mt-2">
             <CiStar />
-
             <span>
               {Number(
                 product.rating || 0
@@ -114,4 +103,3 @@ function ShoppingCard({ product }) {
 }
 
 export default ShoppingCard;
-

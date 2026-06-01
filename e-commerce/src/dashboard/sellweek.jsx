@@ -10,10 +10,7 @@ import {
 } from "chart.js";
 
 import { Line } from "react-chartjs-2";
-import {
-  useState,
-  useEffect,
-} from "react";
+import { useEffect, useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -25,8 +22,8 @@ ChartJS.register(
   Legend
 );
 
-function Orderchart() {
-  const [orderdata, setOrderdata] =
+function Sellweek() {
+  const [salesData, setSalesData] =
     useState([]);
 
   const user = JSON.parse(
@@ -36,77 +33,87 @@ function Orderchart() {
   const sellerId =
     user?.seller_id;
 
-  const orderdetail = async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/orderperday/${sellerId}`
-      );
-
-      const result =
-        await res.json();
-
-      setOrderdata(
-        result.orderdata || []
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
+    const getSalesData =
+      async () => {
+        try {
+          const res = await fetch(
+            `http://localhost:3000/salesperday/${sellerId}`
+          );
+
+          const data =
+            await res.json();
+
+          setSalesData(
+            data.salesdata || []
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
     if (sellerId) {
-      orderdetail();
+      getSalesData();
     }
   }, [sellerId]);
 
-  const maxOrders =
-    orderdata.length > 0
+  const maxRevenue =
+    salesData.length > 0
       ? Math.max(
-          ...orderdata.map(
+          ...salesData.map(
             (item) =>
-              item.total_orders
+              Number(
+                item.revenue
+              )
           )
-        ) + 1
-      : 5;
+        ) + 100
+      : 1000;
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+
     plugins: {
       legend: {
         display: true,
       },
+
       title: {
         display: true,
-        text: "Orders Per Day",
+        text: "Sales Revenue (Last 7 Days)",
       },
     },
+
     scales: {
       y: {
-        min: 0,
-        max: maxOrders,
-        ticks: {
-          stepSize: 1,
-        },
+        beginAtZero: true,
+        max: maxRevenue,
       },
     },
   };
 
-  const data = {
-    labels: orderdata.map(
+  const chartData = {
+    labels: salesData.map(
       (item) => item.day
     ),
+
     datasets: [
       {
-        label: "Orders",
-        data: orderdata.map(
+        label: "Revenue ($)",
+
+        data: salesData.map(
           (item) =>
-            item.total_orders
+            Number(
+              item.revenue
+            )
         ),
+
         borderColor:
-          "rgb(255, 99, 132)",
+          "rgb(75, 192, 192)",
+
         backgroundColor:
-          "rgba(255, 99, 132, 0.5)",
+          "rgba(75, 192, 192, 0.5)",
+
         tension: 0.4,
       },
     ],
@@ -116,11 +123,10 @@ function Orderchart() {
     <div className="w-full h-full">
       <Line
         options={options}
-        data={data}
+        data={chartData}
       />
     </div>
   );
 }
 
-export default Orderchart;
-
+export default Sellweek;

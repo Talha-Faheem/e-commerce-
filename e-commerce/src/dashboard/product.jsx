@@ -49,7 +49,7 @@ function ProductAnalytics({ data }) {
     {
       title: "Rating",
       value: Number(
-        data?.seller?.[0]?.rating || 0
+        data?.seller?.rating || 0
       ).toFixed(1),
       icon: <Star size={28} />,
       bg: "from-purple-500 to-fuchsia-600",
@@ -152,8 +152,8 @@ function ProductAnalytics({ data }) {
           </h2>
 
           <p className="text-gray-500">
-            Detailed insights into
-            your product performance
+            Detailed insights into your
+            product performance
           </p>
         </div>
 
@@ -181,6 +181,7 @@ function ProductAnalytics({ data }) {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
               Product Stock
@@ -202,8 +203,7 @@ function ProductAnalytics({ data }) {
 
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
-              Product Price
-              Distribution
+              Product Price Distribution
             </h2>
 
             <div className="h-[350px] flex items-center justify-center">
@@ -223,9 +223,11 @@ function ProductAnalytics({ data }) {
               />
             </div>
           </div>
+
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
           <div className="bg-white rounded-3xl p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">
               Product Ratings
@@ -263,21 +265,19 @@ function ProductAnalytics({ data }) {
                       className="bg-gray-100 rounded-2xl p-4 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-4">
+
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-violet-500 to-purple-600 text-white font-bold flex items-center justify-center">
-                          #
-                          {index +
-                            1}
+                          #{index + 1}
                         </div>
 
                         <img
-                          src={
-                            product.thumbnail ||
-                            "https://via.placeholder.com/100"
-                          }
-                          alt={
-                            product.name
-                          }
+                          src={`http://localhost:3000/product-image/${product.id}`}
+                          alt={product.name}
                           className="w-14 h-14 rounded-xl object-cover"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/100";
+                          }}
                         />
 
                         <div>
@@ -294,6 +294,7 @@ function ProductAnalytics({ data }) {
                             }
                           </p>
                         </div>
+
                       </div>
 
                       <div className="text-right">
@@ -317,6 +318,7 @@ function ProductAnalytics({ data }) {
                           )}
                         </p>
                       </div>
+
                     </div>
                   )
                 )
@@ -326,7 +328,9 @@ function ProductAnalytics({ data }) {
                 </div>
               )}
             </div>
+
           </div>
+
         </div>
 
       </div>
@@ -335,4 +339,3 @@ function ProductAnalytics({ data }) {
 }
 
 export default ProductAnalytics;
-

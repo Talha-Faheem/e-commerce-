@@ -1,3 +1,5 @@
+import React from "react";
+
 function Toprated({ product, rank }) {
   return (
     <div className="flex items-center justify-between bg-gray-100 p-4 rounded-xl shadow-sm hover:shadow-md transition">
@@ -7,12 +9,13 @@ function Toprated({ product, rank }) {
         </div>
 
         <img
-          src={
-            product.thumbnail ||
-            "https://via.placeholder.com/100"
-          }
+          src={`http://localhost:3000/product-image/${product.id}`}
           alt={product.name}
           className="w-14 h-14 rounded-lg object-cover"
+          onError={(e) => {
+            e.target.src =
+              "https://via.placeholder.com/100";
+          }}
         />
 
         <div>

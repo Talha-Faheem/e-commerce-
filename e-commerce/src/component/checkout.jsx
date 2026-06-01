@@ -1,4 +1,3 @@
-
 import React, {
   useEffect,
   useState,
@@ -6,20 +5,16 @@ import React, {
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-import {
-  FaMapMarkerAlt,
-} from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Checkout() {
   const navigate = useNavigate();
 
   const user = JSON.parse(
-    localStorage.getItem("user")
+    localStorage.getItem("user") || "{}"
   );
 
-  const customerId =
-    user?.customer_id;
+  const customerId = user?.customer_id;
 
   const [cartItems, setCartItems] =
     useState([]);
@@ -39,38 +34,45 @@ export default function Checkout() {
       landmark: "",
     });
 
-  useEffect(() => {
-    if (customerId) {
-      fetchCart();
-    }
-  }, [customerId]);
-
   const fetchCart = async () => {
     try {
       const res = await axios.get(
         `http://localhost:3000/cart/${customerId}`
       );
 
-      setCartItems(
-        res.data.cart || []
-      );
+      if (res.data.success) {
+        setCartItems(
+          res.data.cart || []
+        );
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
+  useEffect(() => {
+    if (!customerId) {
+      navigate("/login");
+      return;
+    }
+
+    fetchCart();
+  }, [customerId]);
+
   const handleChange = (e) => {
-    setAddress({
-      ...address,
+    setAddress((prev) => ({
+      ...prev,
       [e.target.name]:
         e.target.value,
-    });
+    }));
   };
 
   const total = cartItems.reduce(
     (sum, item) =>
       sum +
-      Number(item.subtotal),
+      Number(
+        item.subtotal || 0
+      ),
     0
   );
 
@@ -120,7 +122,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 px-4 md:px-10 py-6">
+    <div className="min-h-screen bg-gray-50 px-4 md:px-10 py-6">
       <p
         onClick={() =>
           navigate("/customer")
@@ -130,175 +132,137 @@ export default function Checkout() {
         ← Back To Shopping
       </p>
 
-      <h1 className="text-2xl font-semibold mb-6">
+      <h1 className="text-3xl font-bold mb-6">
         Checkout
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+        {/* Address Section */}
+        <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border p-6">
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-3 mb-6">
               <div className="bg-black text-white p-3 rounded-full">
                 <FaMapMarkerAlt />
               </div>
 
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-xl font-semibold">
                 Delivery Address
               </h2>
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label>
-                  Full Name
-                </label>
+              <input
+                type="text"
+                name="full_name"
+                placeholder="Full Name"
+                value={
+                  address.full_name
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
 
-                <input
-                  type="text"
-                  name="full_name"
-                  value={
-                    address.full_name
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="w-full border rounded-lg p-3 mt-1"
-                />
-              </div>
+              <input
+                type="text"
+                name="phone"
+                placeholder="Phone Number"
+                value={
+                  address.phone
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
 
-              <div>
-                <label>
-                  Phone
-                </label>
+              <input
+                type="text"
+                name="address_line_1"
+                placeholder="Address Line 1"
+                value={
+                  address.address_line_1
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
 
-                <input
-                  type="text"
-                  name="phone"
-                  value={
-                    address.phone
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="w-full border rounded-lg p-3 mt-1"
-                />
-              </div>
+              <input
+                type="text"
+                name="address_line_2"
+                placeholder="Address Line 2"
+                value={
+                  address.address_line_2
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
 
-              <div>
-                <label>
-                  Address Line 1
-                </label>
-
-                <input
-                  type="text"
-                  name="address_line_1"
-                  value={
-                    address.address_line_1
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="w-full border rounded-lg p-3 mt-1"
-                />
-              </div>
-
-              <div>
-                <label>
-                  Address Line 2
-                </label>
-
-                <input
-                  type="text"
-                  name="address_line_2"
-                  value={
-                    address.address_line_2
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="w-full border rounded-lg p-3 mt-1"
-                />
-              </div>
-
-              <div>
-                <label>
-                  Landmark
-                </label>
-
-                <input
-                  type="text"
-                  name="landmark"
-                  value={
-                    address.landmark
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="w-full border rounded-lg p-3 mt-1"
-                />
-              </div>
+              <input
+                type="text"
+                name="landmark"
+                placeholder="Landmark"
+                value={
+                  address.landmark
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label>
-                    City
-                  </label>
-
-                  <input
-                    type="text"
-                    name="city"
-                    value={
-                      address.city
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    className="w-full border rounded-lg p-3 mt-1"
-                  />
-                </div>
-
-                <div>
-                  <label>
-                    Province
-                  </label>
-
-                  <input
-                    type="text"
-                    name="province"
-                    value={
-                      address.province
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    className="w-full border rounded-lg p-3 mt-1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label>
-                  Postal Code
-                </label>
-
                 <input
                   type="text"
-                  name="postal_code"
+                  name="city"
+                  placeholder="City"
                   value={
-                    address.postal_code
+                    address.city
                   }
                   onChange={
                     handleChange
                   }
-                  className="w-full border rounded-lg p-3 mt-1"
+                  className="border rounded-lg p-3"
+                />
+
+                <input
+                  type="text"
+                  name="province"
+                  placeholder="Province"
+                  value={
+                    address.province
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  className="border rounded-lg p-3"
                 />
               </div>
+
+              <input
+                type="text"
+                name="postal_code"
+                placeholder="Postal Code"
+                value={
+                  address.postal_code
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-lg p-3"
+              />
             </div>
           </div>
         </div>
 
+        {/* Order Summary */}
         <div className="bg-white rounded-xl border p-6 h-fit">
-          <h2 className="text-lg font-semibold mb-4">
+          <h2 className="text-xl font-semibold mb-4">
             Order Summary
           </h2>
 
@@ -306,24 +270,25 @@ export default function Checkout() {
             cartItems.map((item) => (
               <div
                 key={item.id}
-                className="mb-3"
+                className="flex justify-between border-b py-3"
               >
-                <div className="flex justify-between text-sm">
-                  <p>
+                <div>
+                  <p className="font-medium">
                     {item.name}
-                    {" x "}
-                    {item.quantity}
                   </p>
 
-                  <p>
-                    $
-                    {Number(
-                      item.subtotal
-                    ).toFixed(
-                      2
-                    )}
+                  <p className="text-sm text-gray-500">
+                    Qty:{" "}
+                    {item.quantity}
                   </p>
                 </div>
+
+                <p className="font-semibold">
+                  $
+                  {Number(
+                    item.subtotal
+                  ).toFixed(2)}
+                </p>
               </div>
             ))
           ) : (
@@ -332,62 +297,57 @@ export default function Checkout() {
             </p>
           )}
 
-          <div className="border-t my-4"></div>
+          <div className="border-t mt-4 pt-4">
+            <div className="flex justify-between mb-2">
+              <span>
+                Subtotal
+              </span>
+              <span>
+                $
+                {total.toFixed(
+                  2
+                )}
+              </span>
+            </div>
 
-          <div className="flex justify-between text-sm">
-            <p>
-              Subtotal
-            </p>
+            <div className="flex justify-between mb-2">
+              <span>
+                Shipping
+              </span>
+              <span className="text-green-600">
+                Free
+              </span>
+            </div>
 
-            <p>
-              $
-              {total.toFixed(
-                2
-              )}
-            </p>
+            <div className="flex justify-between text-lg font-bold border-t pt-3 mt-3">
+              <span>Total</span>
+
+              <span>
+                $
+                {total.toFixed(
+                  2
+                )}
+              </span>
+            </div>
+
+            <button
+              onClick={
+                handleOrder
+              }
+              disabled={
+                loading ||
+                cartItems.length ===
+                  0
+              }
+              className="w-full mt-6 bg-black text-white py-3 rounded-lg disabled:bg-gray-400"
+            >
+              {loading
+                ? "Processing..."
+                : "Place Order"}
+            </button>
           </div>
-
-          <div className="flex justify-between text-sm mt-2">
-            <p>
-              Shipping
-            </p>
-
-            <p className="text-green-600">
-              Free
-            </p>
-          </div>
-
-          <div className="border-t my-4"></div>
-
-          <div className="flex justify-between text-lg font-semibold">
-            <p>Total</p>
-
-            <p>
-              $
-              {total.toFixed(
-                2
-              )}
-            </p>
-          </div>
-
-          <button
-            onClick={
-              handleOrder
-            }
-            disabled={
-              loading ||
-              cartItems.length ===
-                0
-            }
-            className="w-full bg-black text-white py-3 rounded-lg mt-6"
-          >
-            {loading
-              ? "Processing..."
-              : "Place Order"}
-          </button>
         </div>
       </div>
     </div>
   );
 }
-

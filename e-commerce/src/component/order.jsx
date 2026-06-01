@@ -38,7 +38,7 @@ function Order() {
     if (customerId) {
       getOrders();
     }
-  }, [customerId]);
+  }, [customerId, getOrders]);
 
   return (
     <div className="w-[90%] mt-5 mx-auto flex flex-col gap-4">
