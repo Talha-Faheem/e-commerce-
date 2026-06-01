@@ -1,0 +1,21 @@
+-- DQL Queries
+SELECT * FROM users WHERE email=?;
+SELECT id FROM customers WHERE user_id=?;
+SELECT id FROM sellers WHERE user_id=?;
+SELECT s.*,u.name,u.email,u.phone FROM sellers s JOIN users u ON s.user_id=u.id WHERE s.id=?;
+SELECT r.*,p.name AS product_name FROM reviews r JOIN products p ON r.product_id=p.id WHERE p.seller_id=?;
+SELECT * FROM order_items WHERE seller_id=?;
+SELECT COUNT(*) AS total FROM order_items WHERE seller_id=?;
+SELECT p.* FROM products p LEFT JOIN inventory i ON p.id=i.product_id WHERE p.seller_id=?;
+SELECT COALESCE(SUM(subtotal),0) AS total FROM order_items WHERE seller_id=?;
+SELECT p.id,p.name,p.price FROM products p LEFT JOIN inventory i ON p.id=i.product_id LEFT JOIN order_items oi ON p.id=oi.product_id WHERE p.seller_id=?;
+SELECT DATE(o.created_at) AS day FROM orders o JOIN order_items oi ON o.id=oi.order_id;
+SELECT * FROM order_items oi JOIN orders o ON oi.order_id=o.id JOIN customers c ON o.customer_id=c.id JOIN users u ON c.user_id=u.id JOIN products p ON oi.product_id=p.id WHERE oi.seller_id=?;
+SELECT * FROM orders o JOIN order_items oi ON o.id=oi.order_id JOIN products p ON oi.product_id=p.id JOIN addresses a ON o.address_id=a.id WHERE o.customer_id=?;
+SELECT * FROM categories;
+SELECT p.* FROM products p LEFT JOIN inventory i ON p.id=i.product_id LEFT JOIN reviews r ON p.id=r.product_id LEFT JOIN categories c ON p.category_id=c.id;
+SELECT image_data,image_type FROM product_images WHERE product_id=? LIMIT 1;
+SELECT * FROM categories WHERE status='active';
+SELECT * FROM carts c JOIN cart_items ci ON c.id=ci.cart_id JOIN products p ON ci.product_id=p.id WHERE c.customer_id=?;
+SELECT p.* FROM products p LEFT JOIN categories c ON p.category_id=c.id LEFT JOIN inventory i ON p.id=i.product_id LEFT JOIN reviews r ON p.id=r.product_id WHERE p.id=?;
+SELECT r.id,r.rating,r.comment,u.name AS customer_name FROM reviews r JOIN customers c ON r.customer_id=c.id JOIN users u ON c.user_id=u.id WHERE r.product_id=?;
