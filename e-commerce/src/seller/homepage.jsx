@@ -1,6 +1,5 @@
-import React from "react";
-import Header from "../component/header";
 import { Outlet } from "react-router-dom";
+import Header from "../customer/header";
 
 function Homepage() {
 

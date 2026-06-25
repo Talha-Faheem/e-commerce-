@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { FiShoppingCart } from "react-icons/fi";
-import { IoSearch } from "react-icons/io5";
-import { FiHome } from "react-icons/fi";
-import { TbBoxPadding } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
+import { FiHome, FiShoppingCart } from "react-icons/fi";
+import { IoSearch } from "react-icons/io5";
 import { MdOutlineLogout } from "react-icons/md";
+import { TbBoxPadding } from "react-icons/tb";
 
 import Cart from "./cart";
 

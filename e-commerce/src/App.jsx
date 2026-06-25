@@ -1,17 +1,17 @@
 
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import Login from "./login/login";
 
-import Homepage from "./dashboard/homepage";
-import Seller from "./dashboard/seller";
-import Inventory from "./dashboard/inventory";
+import Homepage from "./seller/homepage";
+import Inventory from "./seller/inventory";
+import Seller from "./seller/seller";
 
-import Mainpages from "./component/mainpages";
-import Productpage from "./component/productpage";
-import Productdetial from "./component/productdetial";
-import Order from "./component/order";
-import Checkout from "./component/checkout";
+import Checkout from "./customer/checkout";
+import Mainpages from "./customer/mainpages";
+import Order from "./customer/order";
+import Productdetial from "./customer/productdetial";
+import Productpage from "./customer/productpage";
 
 import RoleProtectedRoute from "./protectedroute";
 
