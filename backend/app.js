@@ -34,37 +34,37 @@ app.use(
 
 
 app.use(
-  "/auth",
+  "/",
 
   authRoutes,
 );
 
 app.use(
-  "/seller",
+  "/",
 
   sellerRoutes,
 );
 
 app.use(
-  "/product",
+  "/",
 
   productRoutes,
 );
 
 app.use(
-  "/cart",
+  "/",
 
   cartRoutes,
 );
 
 app.use(
-  "/order",
+  "/",
 
   orderRoutes,
 );
 
 app.use(
-  "/review",
+  "/",
 
   reviewRoutes,
 );

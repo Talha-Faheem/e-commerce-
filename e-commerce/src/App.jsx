@@ -1,4 +1,3 @@
-
 import { Route, Routes } from "react-router-dom";
 
 import Login from "./login/login";
@@ -18,10 +17,7 @@ import RoleProtectedRoute from "./protectedroute";
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Login />}
-      />
+      <Route path="/" element={<Login />} />
 
       <Route
         path="/customer"
@@ -31,30 +27,15 @@ function App() {
           </RoleProtectedRoute>
         }
       >
-        <Route
-          index
-          element={<Mainpages />}
-        />
+        <Route index element={<Mainpages />} />
 
-        <Route
-          path="allproduct"
-          element={<Productpage />}
-        />
+        <Route path="allproduct" element={<Productpage />} />
 
-        <Route
-          path="product/:id"
-          element={<Productdetial />}
-        />
+        <Route path="product/:id" element={<Productdetial />} />
 
-        <Route
-          path="checkout"
-          element={<Checkout />}
-        />
+        <Route path="checkout" element={<Checkout />} />
 
-        <Route
-          path="orderhistory"
-          element={<Order />}
-        />
+        <Route path="orderhistory" element={<Order />} />
       </Route>
 
       <Route
@@ -78,9 +59,7 @@ function App() {
       <Route
         path="*"
         element={
-          <h1 className="text-center mt-20 text-2xl">
-            404 Page Not Found
-          </h1>
+          <h1 className="text-center mt-20 text-2xl">404 Page Not Found</h1>
         }
       />
     </Routes>
