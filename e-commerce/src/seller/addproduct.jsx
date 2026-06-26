@@ -1,7 +1,7 @@
-import React, { useState } from "react";
 import axios from "axios";
-import { RiDeleteBin5Line } from "react-icons/ri";
+import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
+import { RiDeleteBin5Line } from "react-icons/ri";
 import EditProductModal from "./editproduct";
 
 function Addproduct({
@@ -23,7 +23,7 @@ function Addproduct({
 
       try {
         await axios.delete(
-          `http://localhost:3000/deleteproduct/${product.id}`
+          `https://e-commerce-backend-l9wv.onrender.com/deleteproduct/${product.id}`
         );
 
         refreshProducts();
@@ -32,7 +32,7 @@ function Addproduct({
       }
     };
 
-  const imageUrl = `http://localhost:3000/product-image/${product.id}`;
+  const imageUrl = `https://e-commerce-backend-l9wv.onrender.com/product-image/${product.id}`;
 
   return (
     <>

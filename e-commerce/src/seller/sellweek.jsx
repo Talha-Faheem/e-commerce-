@@ -1,16 +1,16 @@
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
 
-import { Line } from "react-chartjs-2";
 import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +38,7 @@ function Sellweek() {
       async () => {
         try {
           const res = await fetch(
-            `http://localhost:3000/salesperday/${sellerId}`
+            `https://e-commerce-backend-l9wv.onrender.com/salesperday/${sellerId}`
           );
 
           const data =

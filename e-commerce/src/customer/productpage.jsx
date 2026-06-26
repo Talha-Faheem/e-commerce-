@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from "react";
-import Shoppingcard from "./Shoppingcard";
+import { useEffect, useState } from "react";
 import { CiStar } from "react-icons/ci";
+import Shoppingcard from "./Shoppingcard";
 
 function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -15,7 +15,7 @@ function ProductPage() {
   const getProducts = async () => {
     try {
       const res = await fetch(
-        "http://localhost:3000/products"
+        "https://e-commerce-backend-l9wv.onrender.com/products"
       );
 
       const data = await res.json();

@@ -1,23 +1,23 @@
-import React, {
+import {
   useEffect,
   useState,
 } from "react";
 
-import { IoReorderThreeOutline } from "react-icons/io5";
-import { IoIosNotifications } from "react-icons/io";
+import { AiOutlineDashboard } from "react-icons/ai";
+import { BsBoxSeamFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
+import { FaChartLine } from "react-icons/fa";
+import { IoIosNotifications } from "react-icons/io";
+import { IoReorderThreeOutline } from "react-icons/io5";
 import {
   MdInventory,
   MdOutlineLogout,
 } from "react-icons/md";
-import { BsBoxSeamFill } from "react-icons/bs";
-import { FaChartLine } from "react-icons/fa";
-import { AiOutlineDashboard } from "react-icons/ai";
 
-import Sellerdashboard from "./sellerdashboard";
 import Inventory from "./inventory";
-import ProductAnalytics from "./product";
 import Orderhistory from "./orderhistory";
+import ProductAnalytics from "./product";
+import Sellerdashboard from "./sellerdashboard";
 
 function Seller() {
   const [sellerdata, setSellerdata] =
@@ -50,7 +50,7 @@ function Seller() {
 
         const response =
           await fetch(
-            `http://localhost:3000/sellerdetail/${sellerId}`
+            `https://e-commerce-backend-l9wv.onrender.com/sellerdetail/${sellerId}`
           );
 
         const data =

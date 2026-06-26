@@ -1,4 +1,3 @@
-import React from "react";
 import { CiStar } from "react-icons/ci";
 
 function SmallCard({ product }) {
@@ -7,7 +6,7 @@ function SmallCard({ product }) {
       <div className="w-full h-[180px] overflow-hidden">
         <img
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          src={`http://localhost:3000/product-image/${product.id}`}
+          src={`https://e-commerce-backend-l9wv.onrender.com/product-image/${product.id}`}
           alt={product.name}
           onError={(e) => {
             e.target.src =

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsGraphUpArrow } from "react-icons/bs";
 import { CiStar } from "react-icons/ci";
 
 import Banner1 from "../assests/banner1.jpg";
 
+import Categorybox from "./categorybox";
 import Shoppingcard from "./Shoppingcard";
 import Smallcard from "./smallcard";
-import Categorybox from "./categorybox";
 
 function MainPages() {
   const [homeData, setHomeData] = useState({
@@ -19,7 +19,7 @@ function MainPages() {
     const getHomeData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/homepage"
+          "https://e-commerce-backend-l9wv.onrender.com/homepage"
         );
 
         const data = await res.json();

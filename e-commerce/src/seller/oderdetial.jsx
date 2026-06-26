@@ -1,11 +1,7 @@
-import React from "react";
 import axios from "axios";
 import {
-  FaTruck,
-  FaClock,
-  FaCheck,
-  FaUser,
   FaCalendar,
+  FaUser
 } from "react-icons/fa";
 
 function OrderDetails({
@@ -22,7 +18,7 @@ function OrderDetails({
   const markCompleted = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/seller/order/status/${order.order_id}`,
+        `https://e-commerce-backend-l9wv.onrender.com/seller/order/status/${order.order_id}`,
         {
           order_status_id: 3,
         }

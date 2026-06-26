@@ -1,14 +1,14 @@
-import React, {
+import {
   useEffect,
   useState,
 } from "react";
 
 import axios from "axios";
 
-import { IoSearch } from "react-icons/io5";
 import { BsBoxSeamFill } from "react-icons/bs";
 import { FaClock, FaTruck } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
+import { IoSearch } from "react-icons/io5";
 
 import OrderDetails from "./oderdetial";
 
@@ -30,7 +30,7 @@ function OrderHistory() {
     try {
       const res =
         await axios.get(
-          `http://localhost:3000/seller/orders/${sellerId}`
+          `https://e-commerce-backend-l9wv.onrender.com/seller/orders/${sellerId}`
         );
 
       setOrders(

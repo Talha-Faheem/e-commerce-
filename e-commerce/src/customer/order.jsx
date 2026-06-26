@@ -1,5 +1,5 @@
 
-import React, {
+import {
   useEffect,
   useState,
 } from "react";
@@ -23,7 +23,7 @@ function Order() {
   const getOrders = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/customer/orders/${customerId}`
+        `https://e-commerce-backend-l9wv.onrender.com/customer/orders/${customerId}`
       );
 
       setOrders(

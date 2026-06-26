@@ -9,7 +9,7 @@ function Cartitems({
   const increase = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/cart/increase/${item.id}`
+        `https://e-commerce-backend-l9wv.onrender.com/cart/increase/${item.id}`
       );
 
       refreshCart();
@@ -21,7 +21,7 @@ function Cartitems({
   const decrease = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/cart/decrease/${item.id}`
+        `https://e-commerce-backend-l9wv.onrender.com/cart/decrease/${item.id}`
       );
 
       refreshCart();
@@ -33,7 +33,7 @@ function Cartitems({
   const remove = async () => {
     try {
       await axios.delete(
-        `http://localhost:3000/cart/remove/${item.id}`
+        `https://e-commerce-backend-l9wv.onrender.com/cart/remove/${item.id}`
       );
 
       refreshCart();
@@ -45,7 +45,7 @@ function Cartitems({
   return (
     <div className="flex bg-gray-100 p-3 rounded-lg gap-3 mb-3">
       <img
-        src={`http://localhost:3000/product-image/${item.product_id}`}
+        src={`https://e-commerce-backend-l9wv.onrender.com/product-image/${item.product_id}`}
         alt={item.name}
         className="w-[100px] h-[100px] object-cover rounded-md"
         onError={(e) => {

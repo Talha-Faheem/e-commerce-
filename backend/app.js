@@ -20,7 +20,7 @@ app.use(
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: ["http://localhost:5173", "http://localhost:5174","https://e-commerce-blue-eight-20.vercel.app/"],
 
     credentials: true,
   }),

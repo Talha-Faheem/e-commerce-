@@ -1,4 +1,3 @@
-import React from "react";
 
 function Toprated({ product, rank }) {
   return (
@@ -9,7 +8,7 @@ function Toprated({ product, rank }) {
         </div>
 
         <img
-          src={`http://localhost:3000/product-image/${product.id}`}
+          src={`https://e-commerce-backend-l9wv.onrender.com/product-image/${product.id}`}
           alt={product.name}
           className="w-14 h-14 rounded-lg object-cover"
           onError={(e) => {

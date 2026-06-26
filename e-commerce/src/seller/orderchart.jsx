@@ -1,16 +1,16 @@
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
 
+import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +38,7 @@ function Orderchart() {
       async () => {
         try {
           const res = await fetch(
-            `http://localhost:3000/orderperday/${sellerId}`
+            `https://e-commerce-backend-l9wv.onrender.com/orderperday/${sellerId}`
           );
 
           const result =

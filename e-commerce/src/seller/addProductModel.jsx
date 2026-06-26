@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import axios from "axios";
 import { X } from "lucide-react";
+import { useState } from "react";
 
 function AddProductModal({
   onClose,
@@ -82,7 +82,7 @@ function AddProductModal({
 
       const res =
         await axios.post(
-          "http://localhost:3000/addproduct",
+          "https://e-commerce-backend-l9wv.onrender.com/addproduct",
           data,
           {
             headers: {

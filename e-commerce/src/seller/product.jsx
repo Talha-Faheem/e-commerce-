@@ -1,12 +1,11 @@
-import React from "react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
   ArcElement,
-  Tooltip,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
   Legend,
+  LinearScale,
+  Tooltip,
 } from "chart.js";
 
 import {
@@ -15,10 +14,10 @@ import {
 } from "react-chartjs-2";
 
 import {
+  DollarSign,
   Eye,
   ShoppingCart,
   Star,
-  DollarSign,
 } from "lucide-react";
 
 ChartJS.register(
@@ -271,7 +270,7 @@ function ProductAnalytics({ data }) {
                         </div>
 
                         <img
-                          src={`http://localhost:3000/product-image/${product.id}`}
+                          src={`https://e-commerce-backend-l9wv.onrender.com/product-image/${product.id}`}
                           alt={product.name}
                           className="w-14 h-14 rounded-xl object-cover"
                           onError={(e) => {

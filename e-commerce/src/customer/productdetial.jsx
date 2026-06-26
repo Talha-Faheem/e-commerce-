@@ -1,4 +1,4 @@
-import React, {
+import {
   useEffect,
   useState,
 } from "react";
@@ -10,11 +10,10 @@ import {
   useParams,
 } from "react-router-dom";
 
-import { IoMdArrowRoundBack } from "react-icons/io";
-import { FiBox } from "react-icons/fi";
-import { FaTruck } from "react-icons/fa";
-import { FiShoppingCart } from "react-icons/fi";
 import { CiStar } from "react-icons/ci";
+import { FaTruck } from "react-icons/fa";
+import { FiBox, FiShoppingCart } from "react-icons/fi";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 function Productdetial() {
   const { id } = useParams();
@@ -48,7 +47,7 @@ function Productdetial() {
       try {
         const res =
           await axios.get(
-            `http://localhost:3000/product/${id}`
+            `https://e-commerce-backend-l9wv.onrender.com/product/${id}`
           );
 
         setProduct(
@@ -86,7 +85,7 @@ function Productdetial() {
         }
 
         await axios.post(
-          "http://localhost:3000/cart/add",
+          "https://e-commerce-backend-l9wv.onrender.com/cart/add",
           {
             customer_id:
               customerId,
@@ -118,7 +117,7 @@ function Productdetial() {
         }
 
         await axios.post(
-          "http://localhost:3000/review",
+          "https://e-commerce-backend-l9wv.onrender.com/review",
           {
             customer_id:
               customerId,
@@ -166,7 +165,7 @@ function Productdetial() {
 
         <div className="lg:w-[46%] w-full">
           <img
-            src={`http://localhost:3000/product-image/${product.id}`}
+            src={`https://e-commerce-backend-l9wv.onrender.com/product-image/${product.id}`}
             alt={product.name}
             className="w-full rounded-2xl object-cover"
             onError={(

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { RiShoppingBag3Fill } from "react-icons/ri";
 import { RxCross2 } from "react-icons/rx";
+import { useNavigate } from "react-router-dom";
 import Cartitems from "./cartitems";
 
 function Cart({ close }) {
@@ -19,7 +19,7 @@ function Cart({ close }) {
   const getCart = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/cart/${customerId}`
+        `https://e-commerce-backend-l9wv.onrender.com/cart/${customerId}`
       );
 
       setCart(res.data.cart || []);

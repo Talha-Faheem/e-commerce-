@@ -1,11 +1,11 @@
-import React, {
+import {
   useEffect,
   useState,
 } from "react";
 
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function Checkout() {
   const fetchCart = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/cart/${customerId}`
+        `https://e-commerce-backend-l9wv.onrender.com/cart/${customerId}`
       );
 
       if (res.data.success) {
@@ -92,7 +92,7 @@ export default function Checkout() {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:3000/placeorder",
+        "http://74.220.48.0/24/placeorder",
         {
           customer_id: customerId,
           address,

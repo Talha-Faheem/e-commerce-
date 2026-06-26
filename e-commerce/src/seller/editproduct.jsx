@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import axios from "axios";
 import { X } from "lucide-react";
+import { useState } from "react";
 
 function EditProductModal({
   product,
@@ -135,7 +135,7 @@ function EditProductModal({
 
         const res =
           await axios.put(
-            `http://localhost:3000/updateproduct/${product.id}`,
+            `https://e-commerce-backend-l9wv.onrender.com/updateproduct/${product.id}`,
             data,
             {
               headers: {

@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
 import axios from "axios";
 import { ShoppingBag, User } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utilities/authprovider";
 
@@ -54,7 +54,7 @@ function Login() {
       const role_id = selectedRole === "seller" ? 2 : 3;
 
       const res = await axios.post(
-        "http://localhost:3000/register",
+        "https://e-commerce-backend-l9wv.onrender.com/register",
         {
           name: formData.name,
           email: formData.email,
@@ -95,7 +95,7 @@ function Login() {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:3000/login",
+        "https://e-commerce-backend-l9wv.onrender.com/login",
         {
           email: formData.email,
           password: formData.password,
