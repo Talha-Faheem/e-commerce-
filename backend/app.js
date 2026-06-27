@@ -10,76 +10,58 @@ const reviewRoutes = require("./routes/reviewRoutes");
 
 const app = express();
 
+/* ==========================
+   Middlewares
+========================== */
+
+app.use(
+    cors({
+        origin: [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "https://e-commerce-eitwdm1cy-talhafaheem1103-1151s-projects.vercel.app"
+        ],
+        credentials: true
+    })
+);
+
+// Handle preflight requests
+app.options("*", cors());
+
 app.use(express.json());
 
 app.use(
-  express.urlencoded({
-    extended: true,
-  }),
+    express.urlencoded({
+        extended: true
+    })
 );
 
-// app.use(
-//   cors({
-//     origin: ["http://localhost:5173", "http://localhost:5174","https://e-commerce-eitwdm1cy-talhafaheem1103-1151s-projects.vercel.app"],
+/* ==========================
+   Static Files
+========================== */
 
-//     credentials: true,
-//   }),
-// );
+app.use("/uploads", express.static("uploads"));
 
-app.use(
-  "/uploads",
+/* ==========================
+   Routes
+========================== */
 
-  express.static("uploads"),
-);
+app.use("/", authRoutes);
+app.use("/", sellerRoutes);
+app.use("/", productRoutes);
+app.use("/", cartRoutes);
+app.use("/", orderRoutes);
+app.use("/", reviewRoutes);
 
+/* ==========================
+   Health Check
+========================== */
 
-app.use(
-  "/",
-
-  authRoutes,
-);
-
-app.use(
-  "/",
-
-  sellerRoutes,
-);
-
-app.use(
-  "/",
-
-  productRoutes,
-);
-
-app.use(
-  "/",
-
-  cartRoutes,
-);
-
-app.use(
-  "/",
-
-  orderRoutes,
-);
-
-app.use(
-  "/",
-
-  reviewRoutes,
-);
-
-
-app.get(
-  "/",
-
-  (req, res) => {
-    res.json({
-      success: true,
-
-      message: "MarketHub API Running",
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "MarketHub API Running"
     });
-  },
-);
+});
 
 module.exports = app;
