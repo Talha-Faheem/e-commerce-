@@ -1,40 +1,22 @@
 const express = require("express");
 const cors = require("cors");
 
-const authRoutes = require("./routes/authRoutes");
-const sellerRoutes = require("./routes/sellerRoutes");
-const productRoutes = require("./routes/productRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const reviewRoutes = require("./routes/reviewRoutes");
-
 const app = express();
 
-/* ==========================
-   Middlewares
-========================== */
-
-app.use(
-    cors({
-        origin: [
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "https://e-commerce-eitwdm1cy-talhafaheem1103-1151s-projects.vercel.app"
-        ],
-        credentials: true
-    })
-);
-
-// Handle preflight requests
-app.options("*", cors());
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://e-commerce-eitwdm1cy-talhafaheem1103-1151s-projects.vercel.app"
+    ],
+    credentials: true
+}));
 
 app.use(express.json());
 
-app.use(
-    express.urlencoded({
-        extended: true
-    })
-);
+app.use(express.urlencoded({
+    extended: true
+}));
 
 /* ==========================
    Static Files
